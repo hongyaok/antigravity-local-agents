@@ -1,0 +1,11 @@
+{
+  "agy-local-agents-direct-chat": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node ./mcp/direct-chat-hook.mjs",
+        "timeout": 65
+      }
+    ]
+  }
+}

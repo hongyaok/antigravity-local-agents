@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "agy-local-agents": {
+      "command": "node",
+      "args": ["mcp/server.mjs"]
+    }
+  }
+}

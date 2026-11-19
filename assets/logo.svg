@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges">
+  <!-- Outer dark stepped pixel frame (~10% margin baked in: 14..114) -->
+  <path fill="#18181E" d="M24 14h80v6h6v6h4v76h-4v6h-6v6H24v-6h-6v-6h-4V26h4v-6h6v-6z"/>
+  <!-- Crisp outer border highlight -->
+  <path fill="#F4F4F6" d="M24 14h80v4H24zM24 110h80v4H24zM14 26h4v76h-4zM110 26h4v76h-4zM18 20h6v6h-6zM104 20h6v6h-6zM18 102h6v6h-6zM104 102h6v6h-6z"/>
+  <!-- Top & bottom connector pins -->
+  <path fill="#F1B27C" d="M36 22h8v8h-8zM52 22h8v8h-8zM68 22h8v8h-8zM84 22h8v8h-8zM36 98h8v8h-8zM52 98h8v8h-8zM68 98h8v8h-8zM84 98h8v8h-8z"/>
+  <!-- Inner recessed silicon core -->
+  <rect x="26" y="34" width="76" height="60" fill="#0B0B10"/>
+  <rect x="26" y="34" width="76" height="4" fill="#383842"/>
+  <rect x="26" y="90" width="76" height="4" fill="#222229"/>
+  <!-- Pixel '+' and node grid representing Antigravity Local Agents -->
+  <rect x="38" y="54" width="24" height="20" fill="#296861"/>
+  <rect x="46" y="46" width="8" height="36" fill="#4ADE80"/>
+  <rect x="34" y="60" width="32" height="8" fill="#4ADE80"/>
+  <!-- Model beacon / signal bars on the right -->
+  <rect x="74" y="68" width="6" height="14" fill="#F1B27C"/>
+  <rect x="82" y="58" width="6" height="24" fill="#F1B27C"/>
+  <rect x="90" y="46" width="6" height="36" fill="#F4F4F6"/>
+</svg>

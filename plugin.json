@@ -1,0 +1,12 @@
+{
+  "name": "agy-local-agents",
+  "displayName": "Antigravity Local Agents",
+  "description": "Run local and OpenAI-compatible models as Antigravity agents and subagents with Auto harness routing (mini-SWE for coding, Native for knowledge work), Gemini-to-local orchestration, live chat streaming, and a pixel-art sidecar panel.",
+  "logo": "assets/logo.svg",
+  "version": "0.2.0",
+  "suggestedPrompts": [
+    "Open Antigravity Local Agents",
+    "Use orchestrator-to-local to split this task across my local subagents",
+    "Discover models from http://localhost:11434/v1 and set up local agents"
+  ]
+}

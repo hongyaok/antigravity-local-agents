@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Subagents Monitor</title>
+  <script src="/preload.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Pixelify Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url('/api/font?name=pixelify-sans-cyrillic.woff2') format('woff2');
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: 'Pixelify Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url('/api/font?name=pixelify-sans-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Pixelify Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url('/api/font?name=pixelify-sans-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-400-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-400-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-700-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-700-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    :root {
+      color-scheme: dark;
+
+      --gray-d-950: #000000;
+      --gray-d-900: #101014;
+      --gray-d-850: #18181e;
+      --gray-d-500: #6f6f7a;
+      --gray-d-400: #a0a0ac;
+      --gray-d-200: #d0d0d8;
+      --gray-d-50: #f4f4f6;
+
+      --green-400: #4ade80;
+      --amber-300: #fcd34d;
+      --red-400: #f87171;
+      --cyan-400: #38bdf8;
+
+      --color-text-primary: var(--gray-d-50);
+      --color-text-secondary: var(--gray-d-200);
+      --color-text-muted: var(--gray-d-400);
+      --color-border-hairline: rgb(255 255 255 / 0.08);
+      --color-accent-solid: var(--gray-d-50);
+      --color-text-on-accent: var(--gray-d-900);
+      --color-focus-ring: var(--gray-d-50);
+
+      --pixel-surface: rgb(20 20 25 / 0.92);
+      --pixel-surface-strong: rgb(24 24 30 / 0.96);
+      --pixel-surface-inset: rgb(8 8 11 / 0.85);
+      --pixel-surface-hover: rgb(38 38 48 / 0.94);
+      --pixel-surface-selected: rgb(46 46 58 / 0.96);
+      --pixel-border: rgb(255 255 255 / 0.17);
+      --pixel-border-strong: rgb(255 255 255 / 0.32);
+      --pixel-bevel-top: rgb(255 255 255 / 0.10);
+      --pixel-bevel-bottom: rgb(0 0 0 / 0.55);
+      --pixel-drop-shadow: rgb(255 255 255 / 0.06);
+
+      --glass-blur: 18px;
+      --glass-saturate: 1.45;
+      --ambient-accent: #4ade80;
+
+      --font-pixel: "Pixelify Sans", "Silkscreen", "DotGothic16", "Microsoft YaHei", monospace;
+      --font-pixel-display: "Silkscreen", "Pixelify Sans", "DotGothic16", "Microsoft YaHei", monospace;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --text-caption: 0.6875rem;
+      --text-label: 0.75rem;
+      --text-body: 0.875rem;
+      --text-title: 0.9375rem;
+
+      --pixel-clip-card: polygon(
+        0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0,
+        calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%,
+        4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px)
+      );
+      --pixel-clip-sm: polygon(
+        0 2px, 2px 2px, 2px 0,
+        calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px,
+        100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%,
+        2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px)
+      );
+      --ease-out: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      background: #000000 !important;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100dvh;
+      background: #000000 !important;
+      color: var(--color-text-primary) !important;
+      font-family: var(--font-pixel) !important;
+      font-size: var(--text-body);
+      line-height: 1.45;
+    }
+
+    button { appearance: none; margin: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+    .pressable { transition: scale 140ms ease-out, background-color 140ms ease-out, color 140ms ease-out; }
+    @media (prefers-reduced-motion: no-preference) {
+      .pressable:not(:disabled):active { scale: 0.96; }
+    }
+
+    .app {
+      container: monitor / inline-size;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: clamp(12px, 2.6vw, 22px);
+    }
+
+    .card { position: relative; isolation: isolate; }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      transform: translate(3px, 4px);
+      clip-path: var(--pixel-clip-card);
+      background: var(--pixel-drop-shadow);
+    }
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      clip-path: var(--pixel-clip-card);
+      background-color: var(--pixel-surface);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border),
+        inset 0 -2px 0 0 var(--pixel-border),
+        inset 2px 0 0 0 var(--pixel-border),
+        inset -2px 0 0 0 var(--pixel-border);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .avatar { position: relative; isolation: isolate; flex: none; padding: 3px; }
+    .avatar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--pixel-surface-strong);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+    }
+    .avatar-inner {
+      width: 30px;
+      height: 30px;
+      background: var(--pixel-surface-inset);
+      display: grid;
+      place-items: center;
+    }
+    .identity-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    h1 {
+      margin: 0;
+      font-family: var(--font-pixel-display);
+      font-size: var(--text-title);
+      line-height: 1.2;
+      font-weight: 700;
+    }
+    .identity-sub {
+      font-size: var(--text-label);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    .chip {
+      position: relative;
+      isolation: isolate;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 4px 10px;
+      color: var(--color-text-secondary);
+      font-family: var(--font-pixel-display);
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .chip::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--pixel-surface-strong);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+    }
+    .chip:hover { color: var(--color-text-primary); }
+
+    .segmented {
+      position: relative;
+      display: flex;
+      padding: 3px;
+      gap: 2px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border),
+        inset 0 -2px 0 0 var(--pixel-border),
+        inset 2px 0 0 0 var(--pixel-border),
+        inset -2px 0 0 0 var(--pixel-border);
+      isolation: isolate;
+    }
+    .seg-indicator {
+      position: absolute;
+      z-index: -1;
+      top: 3px;
+      bottom: 3px;
+      left: 0;
+      width: var(--w, 0px);
+      translate: var(--x, 0px) 0;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-selected);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-bevel-top),
+        inset 0 -2px 0 0 var(--pixel-bevel-bottom),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+      pointer-events: none;
+    }
+    .segmented.is-ready .seg-indicator {
+      transition: translate 220ms var(--ease-out), width 220ms var(--ease-out);
+    }
+    .seg-option {
+      flex: 1 1 auto;
+      min-height: 24px;
+      padding: 3px 9px;
+      font-size: var(--text-caption);
+      font-weight: 700;
+      text-align: center;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+    .seg-option:hover, .seg-option[aria-checked="true"] { color: var(--color-text-primary); }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-inline: 2px;
+    }
+    .section-label {
+      margin: 0;
+      font-family: var(--font-pixel-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+
+    /* Subagent Roster Grid */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 10px;
+    }
+    .agent-card {
+      --a-bg: var(--pixel-surface-inset);
+      --a-border: var(--pixel-border);
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding: 10px 11px;
+      text-align: left;
+      min-width: 0;
+      color: var(--color-text-secondary);
+      transition: background-color 140ms ease-out;
+    }
+    .agent-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--a-bg);
+      box-shadow:
+        inset 0 2px 0 0 var(--a-border),
+        inset 0 -2px 0 0 var(--a-border),
+        inset 2px 0 0 0 var(--a-border),
+        inset -2px 0 0 0 var(--a-border);
+    }
+    .agent-card:hover { --a-bg: var(--pixel-surface-hover); --a-border: var(--pixel-border-strong); color: var(--color-text-primary); }
+    .agent-card[aria-selected="true"] {
+      --a-bg: color-mix(in oklab, var(--ambient-accent) 11%, var(--pixel-surface-selected));
+      --a-border: var(--color-accent-solid);
+      color: var(--color-text-primary);
+    }
+    .agent-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .agent-id-wrap { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .agent-id {
+      font-family: var(--font-pixel-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .agent-time {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      flex: none;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green-400);
+      flex: none;
+    }
+    .live-dot.is-running { background: var(--green-400); animation: pulse 1.1s ease-in-out infinite; }
+    .live-dot.is-done { background: var(--cyan-400); }
+    .live-dot.is-error { background: var(--red-400); }
+    .live-dot.is-stale, .live-dot.is-pending { background: var(--amber-300); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    .badge-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+    .mini-badge {
+      padding: 1px 6px;
+      font-family: var(--font-pixel-display);
+      font-size: 0.56rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--pixel-surface-strong);
+      border: 1px solid var(--pixel-border);
+      color: var(--gray-d-200);
+      white-space: nowrap;
+    }
+    .mini-badge.is-coding { color: var(--cyan-400); border-color: color-mix(in oklab, var(--cyan-400) 45%, var(--pixel-border)); }
+    .mini-badge.is-knowledge { color: var(--green-400); border-color: color-mix(in oklab, var(--green-400) 45%, var(--pixel-border)); }
+    .mini-badge.is-warn { color: var(--amber-300); border-color: color-mix(in oklab, var(--amber-300) 45%, var(--pixel-border)); }
+    .mini-badge.is-err { color: var(--red-400); border-color: color-mix(in oklab, var(--red-400) 50%, var(--pixel-border)); }
+
+    .loop-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: var(--text-caption); color: var(--color-text-muted); }
+    .meter { width: 100%; height: 6px; padding: 1px; background: var(--pixel-surface); border: 1px solid var(--pixel-border); overflow: hidden; }
+    .meter-fill { height: 100%; width: 100%; background: var(--green-400); transform-origin: left center; scale: var(--value, 0) 1; transition: scale 200ms ease-out; }
+    .meter-fill[data-status="done"] { background: var(--cyan-400); }
+    .meter-fill[data-status="error"] { background: var(--red-400); }
+
+    .agent-task {
+      font-size: 0.72rem;
+      color: var(--color-text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.1em;
+    }
+    .agent-activity {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Inspector */
+    .inspector { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .inspector-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--color-border-hairline);
+    }
+    .inspector-title-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .inspector-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-pixel-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    .inspector-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+    .trace-pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--pixel-surface-inset);
+      border: 2px solid var(--pixel-border);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.5;
+      color: var(--gray-d-200);
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 220px;
+      max-height: 46dvh;
+      overflow-y: auto;
+    }
+
+    .tool-list { display: flex; flex-direction: column; gap: 8px; max-height: 46dvh; overflow-y: auto; }
+    .tool-row {
+      padding: 8px 10px;
+      background: var(--pixel-surface-inset);
+      border: 1px solid var(--pixel-border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .tool-row-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-size: 0.72rem; }
+    .tool-preview { margin: 0; font-family: var(--font-mono); font-size: 0.68rem; color: var(--color-text-muted); white-space: pre-wrap; word-break: break-word; }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 22px 12px;
+      text-align: center;
+      color: var(--color-text-muted);
+      background: var(--pixel-surface-inset);
+      border: 2px solid var(--pixel-border);
+    }
+    .empty-title { margin: 0 0 4px; font-family: var(--font-pixel-display); font-size: 0.75rem; color: var(--color-text-primary); }
+    .empty-desc { margin: 0; font-size: var(--text-label); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="identity">
+        <div class="avatar" aria-hidden="true">
+          <div class="avatar-inner">
+            <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="none">
+              <rect x="2" y="2" width="12" height="12" fill="#18181E"/>
+              <rect x="2" y="2" width="12" height="2" fill="#F4F4F6"/>
+              <rect x="2" y="12" width="12" height="2" fill="#F4F4F6"/>
+              <rect x="2" y="2" width="2" height="12" fill="#F4F4F6"/>
+              <rect x="12" y="2" width="2" height="12" fill="#F4F4F6"/>
+              <rect x="4" y="5" width="3" height="3" fill="#4ADE80"/>
+              <rect x="9" y="5" width="3" height="3" fill="#38BDF8"/>
+              <rect x="6" y="9" width="4" height="2" fill="#FCD34D"/>
+            </svg>
+          </div>
+        </div>
+        <div class="identity-text">
+          <h1>Local Subagents</h1>
+          <span class="identity-sub" id="monitor-summary">Checking active runs…</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="segmented" id="filter-seg" role="radiogroup" aria-label="Filter runs">
+          <span class="seg-indicator" aria-hidden="true"></span>
+          <button type="button" class="seg-option pressable" role="radio" data-filter="all" aria-checked="true" tabindex="0">All</button>
+          <button type="button" class="seg-option pressable" role="radio" data-filter="running" aria-checked="false" tabindex="-1">Active</button>
+          <button type="button" class="seg-option pressable" role="radio" data-filter="subagent" aria-checked="false" tabindex="-1">Subagents</button>
+        </div>
+        <button type="button" class="chip pressable" id="refresh-btn">Refresh</button>
+        <button type="button" class="chip pressable" id="settings-btn">Settings</button>
+      </div>
+    </header>
+
+    <section>
+      <div class="section-head" style="margin-bottom:6px;">
+        <h2 class="section-label">Active & Recent Agents</h2>
+        <span class="identity-sub" id="roster-count">0</span>
+      </div>
+      <div class="agents-grid" id="agents-grid">
+        <div class="empty">
+          <p class="empty-title">No local subagent runs yet</p>
+          <p class="empty-desc">Launch local subagents to monitor their models, types, loops, and live output.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card inspector" id="inspector-card">
+      <div class="inspector-head">
+        <div class="inspector-title-wrap">
+          <div class="inspector-title">
+            <span class="live-dot is-done" id="insp-dot"></span>
+            <span id="insp-title">Select a subagent</span>
+          </div>
+          <div class="badge-row" id="insp-badges"></div>
+        </div>
+
+        <div class="inspector-tools">
+          <div class="segmented" id="tab-seg" role="tablist" aria-label="Inspector view">
+            <span class="seg-indicator" aria-hidden="true"></span>
+            <button type="button" class="seg-option pressable" role="tab" data-tab="stream" aria-checked="true" tabindex="0">Live</button>
+            <button type="button" class="seg-option pressable" role="tab" data-tab="thinking" aria-checked="false" tabindex="-1">Thinking</button>
+            <button type="button" class="seg-option pressable" role="tab" data-tab="tools" aria-checked="false" tabindex="-1">Tools</button>
+            <button type="button" class="seg-option pressable" role="tab" data-tab="io" aria-checked="false" tabindex="-1">Task & Reply</button>
+          </div>
+        </div>
+      </div>
+
+      <pre class="trace-pre" id="insp-pre">Select an agent card above or click a local-subagent pill in chat.</pre>
+      <div class="tool-list hidden" id="insp-tools-list"></div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const agentsGrid = $('agents-grid');
+      const rosterCount = $('roster-count');
+      const monitorSummary = $('monitor-summary');
+      const filterSeg = $('filter-seg');
+      const tabSeg = $('tab-seg');
+      const refreshBtn = $('refresh-btn');
+      const settingsBtn = $('settings-btn');
+      const inspDot = $('insp-dot');
+      const inspTitle = $('insp-title');
+      const inspBadges = $('insp-badges');
+      const inspPre = $('insp-pre');
+      const inspToolsList = $('insp-tools-list');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const state = {
+        runs: [],
+        filter: 'all',
+        tab: 'stream',
+        selectedRunId: urlParams.get('runId') || '',
+        runDetails: new Map(), // runId -> { cursor, events, thinkingText, contentText, liveText, tools, reply, meta }
+        autoFollow: true,
+      };
+
+      function apiFetch(url, opts = {}) {
+        if (window.sidecar && typeof window.sidecar.fetch === 'function') {
+          return window.sidecar.fetch(url, opts);
+        }
+        return fetch(url, opts);
+      }
+
+      async function apiJson(url, opts) {
+        const res = await apiFetch(url, opts);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatDuration(ms) {
+        const totalSec = Math.max(0, Math.floor((Number(ms) || 0) / 1000));
+        if (totalSec < 60) return `${totalSec}s`;
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return `${m}m ${String(s).padStart(2, '0')}s`;
+      }
+
+      function elapsedForRun(run) {
+        if (run.status === 'running' && run.startedAt) {
+          const started = Date.parse(run.startedAt);
+          if (Number.isFinite(started)) return formatDuration(Date.now() - started);
+        }
+        if (typeof run.latencyMs === 'number' && run.latencyMs > 0) {
+          return `${(run.latencyMs / 1000).toFixed(1)}s`;
+        }
+        return '—';
+      }
+
+      function agentTypeLabel(run) {
+        if (run.taskType === 'coding') return 'Coding';
+        if (run.taskType === 'knowledge') return 'Knowledge';
+        if (run.harness === 'mini-swe-agent') return 'Coding';
+        if (run.kind === 'subagent') return 'Knowledge';
+        return 'Chat';
+      }
+
+      function harnessLabel(h) {
+        if (h === 'mini-swe-agent') return 'mini-SWE';
+        if (h === 'native') return 'Native';
+        if (h === 'auto') return 'Auto';
+        return h || 'Native';
+      }
+
+      function syncIndicator(group) {
+        if (!group) return;
+        const indicator = group.querySelector('.seg-indicator');
+        const active = group.querySelector('[aria-checked="true"]');
+        if (!indicator || !active || active.offsetWidth === 0) return;
+        group.style.setProperty('--x', `${active.offsetLeft}px`);
+        group.style.setProperty('--w', `${active.offsetWidth}px`);
+        if (!group.classList.contains('is-ready')) {
+          requestAnimationFrame(() => requestAnimationFrame(() => group.classList.add('is-ready')));
+        }
+      }
+
+      function setRadio(group, fn) {
+        for (const opt of group.querySelectorAll('.seg-option')) {
+          const on = fn(opt);
+          opt.setAttribute('aria-checked', String(on));
+          opt.tabIndex = on ? 0 : -1;
+        }
+        syncIndicator(group);
+      }
+
+      function sortRuns(list) {
+        const subRe = /^local-subagent-(\d+)$/i;
+        return [...list].sort((a, b) => {
+          const aRunning = a.status === 'running' ? 1 : 0;
+          const bRunning = b.status === 'running' ? 1 : 0;
+          if (aRunning !== bRunning) return bRunning - aRunning;
+          const aMatch = String(a.runId || '').match(subRe);
+          const bMatch = String(b.runId || '').match(subRe);
+          if (aMatch && bMatch && Math.abs((Date.parse(a.startedAt || '') || 0) - (Date.parse(b.startedAt || '') || 0)) < 120000) {
+            return Number(aMatch[1]) - Number(bMatch[1]);
+          }
+          return (Date.parse(b.startedAt || '') || 0) - (Date.parse(a.startedAt || '') || 0);
+        });
+      }
+
+      function getFilteredRuns() {
+        const sorted = sortRuns(state.runs);
+        if (state.filter === 'running') return sorted.filter((r) => r.status === 'running');
+        if (state.filter === 'subagent') {
+          return sorted.filter((r) => r.kind === 'subagent' || /^local-subagent-/i.test(String(r.runId || '')));
+        }
+        return sorted;
+      }
+
+      function ensureDetail(runId) {
+        if (!state.runDetails.has(runId)) {
+          state.runDetails.set(runId, {
+            cursor: 0,
+            thinkingText: '',
+            contentText: '',
+            liveText: '',
+            tools: [],
+            reply: '',
+            task: '',
+            meta: null,
+            lastEventType: '',
+            resetPending: false,
+          });
+        }
+        return state.runDetails.get(runId);
+      }
+
+      function applyPollEvents(detail, pollRes) {
+        if (!pollRes) return;
+        if (pollRes.meta) detail.meta = pollRes.meta;
+        const events = Array.isArray(pollRes.events) ? pollRes.events : [];
+        if (
+          pollRes.reset ||
+          (events.some((e) => e.type === 'run_start') && pollRes.nextCursor === events.length) ||
+          (pollRes.meta?.startedAt && detail.startedAt && pollRes.meta.startedAt !== detail.startedAt)
+        ) {
+          detail.thinkingText = '';
+          detail.contentText = '';
+          detail.liveText = '';
+          detail.tools = [];
+          detail.reply = '';
+          detail.lastEventType = '';
+        }
+        if (pollRes.meta?.startedAt) detail.startedAt = pollRes.meta.startedAt;
+
+        for (const ev of events) {
+          if (ev.type === 'run_start') {
+            detail.task = ev.task || detail.task;
+            continue;
+          }
+          if (ev.type === 'step_start') {
+            detail.liveText += `\n\n--- Loop ${ev.step || '?'}${ev.maxSteps ? `/${ev.maxSteps}` : ''} (${harnessLabel(ev.harness)}) ---\n`;
+            detail.thinkingText += `\n\n--- Loop ${ev.step || '?'} ---\n`;
+            detail.lastEventType = 'step_start';
+            continue;
+          }
+          if (ev.type === 'thinking_delta') {
+            if (detail.lastEventType !== 'thinking_delta') {
+              detail.liveText += '[Thinking] ';
+            }
+            const chunk = String(ev.text || '');
+            detail.liveText += chunk;
+            detail.thinkingText += chunk;
+            detail.lastEventType = 'thinking_delta';
+            continue;
+          }
+          if (ev.type === 'content_delta') {
+            if (detail.lastEventType === 'thinking_delta') {
+              detail.liveText += '\n\n[Output] ';
+            }
+            const chunk = String(ev.text || '');
+            detail.liveText += chunk;
+            detail.contentText += chunk;
+            detail.lastEventType = 'content_delta';
+            continue;
+          }
+          if (ev.type === 'assistant_note') {
+            detail.liveText += `\n[Note] ${ev.text || ''}\n`;
+            detail.lastEventType = 'assistant_note';
+            continue;
+          }
+          if (ev.type === 'tool_start') {
+            detail.liveText += `\n→ ${ev.tool} ${ev.args ? JSON.stringify(ev.args).slice(0, 140) : ''}\n`;
+            detail.tools.push({
+              step: ev.step,
+              tool: ev.tool,
+              args: ev.args,
+              status: 'running',
+            });
+            detail.lastEventType = 'tool_start';
+            continue;
+          }
+          if (ev.type === 'tool_end') {
+            detail.liveText += `✓ ${ev.tool} (${ev.ok ? 'ok' : 'error'}, ${ev.durationMs ?? 0}ms)\n`;
+            const idx = detail.tools.findLastIndex((t) => t.tool === ev.tool && t.status === 'running');
+            const entry = {
+              step: ev.step,
+              tool: ev.tool,
+              args: ev.args,
+              ok: ev.ok,
+              durationMs: ev.durationMs,
+              preview: ev.preview || '',
+              status: ev.ok ? 'ok' : 'error',
+            };
+            if (idx >= 0) detail.tools[idx] = entry;
+            else detail.tools.push(entry);
+            detail.lastEventType = 'tool_end';
+            continue;
+          }
+          if (ev.type === 'run_end') {
+            detail.reply = ev.reply || detail.contentText || '';
+            if (ev.reply && !detail.contentText) {
+              detail.liveText += `\n\n[Final Reply]\n${ev.reply}\n`;
+            }
+            detail.lastEventType = 'run_end';
+            continue;
+          }
+          if (ev.type === 'run_error') {
+            detail.liveText += `\n\n[Error] ${ev.error || 'Unknown error'}\n`;
+            detail.lastEventType = 'run_error';
+          }
+        }
+        detail.cursor = pollRes.nextCursor || detail.cursor;
+      }
+
+      function renderRoster() {
+        const filtered = getFilteredRuns();
+        const runningCnt = state.runs.filter((r) => r.status === 'running').length;
+        const doneCnt = state.runs.filter((r) => r.status === 'done').length;
+
+        monitorSummary.textContent = runningCnt
+          ? `${runningCnt} running · ${doneCnt} completed`
+          : state.runs.length
+            ? `Idle · ${state.runs.length} recorded run${state.runs.length === 1 ? '' : 's'}`
+            : 'Idle · waiting for local subagents';
+        rosterCount.textContent = `${filtered.length}`;
+
+        if (state.selectedRunId && !state.runs.some((r) => r.runId === state.selectedRunId)) {
+          // Synthesize placeholder card if user deep-linked into a fresh runId
+          const placeholder = {
+            runId: state.selectedRunId,
+            kind: 'subagent',
+            status: 'pending',
+            model: 'pending',
+            displayName: state.selectedRunId,
+            task: 'Waiting for subagent run to start…',
+            harness: 'auto',
+            thinkingLevel: 'auto',
+            stepsUsed: 0,
+            maxThinkingLoops: 10,
+            toolCount: 0,
+            lastActivity: 'Waiting…',
+          };
+          filtered.unshift(placeholder);
+        }
+
+        if (!filtered.length) {
+          agentsGrid.innerHTML = `
+            <div class="empty">
+              <p class="empty-title">No local subagent runs match filter</p>
+              <p class="empty-desc">Switch filter to All or invoke local subagents via Gemini.</p>
+            </div>`;
+          return;
+        }
+
+        agentsGrid.innerHTML = filtered
+          .map((run) => {
+            const selected = run.runId === state.selectedRunId;
+            const status = run.status || 'running';
+            const typeLabel = agentTypeLabel(run);
+            const typeClass = typeLabel === 'Coding' ? 'is-coding' : typeLabel === 'Knowledge' ? 'is-knowledge' : '';
+            const steps = Math.max(0, Number(run.stepsUsed) || 0);
+            const maxLoops = Math.max(1, Number(run.maxThinkingLoops) || 10);
+            const pct = status === 'done' ? 1 : Math.min(1, steps / maxLoops);
+            const activity = run.currentTool
+              ? `→ ${run.currentTool}`
+              : run.lastActivity || (status === 'done' ? 'Completed' : 'Thinking…');
+
+            return `
+              <button type="button" class="agent-card pressable" role="option" aria-selected="${selected}" data-run-id="${escapeHtml(run.runId)}">
+                <div class="agent-top">
+                  <div class="agent-id-wrap">
+                    <span class="live-dot is-${escapeHtml(status)}"></span>
+                    <span class="agent-id">${escapeHtml(run.runId)}</span>
+                  </div>
+                  <span class="agent-time">${escapeHtml(elapsedForRun(run))}</span>
+                </div>
+                <div class="badge-row">
+                  <span class="mini-badge ${typeClass}">${escapeHtml(typeLabel)}</span>
+                  <span class="mini-badge">${escapeHtml(run.displayName || run.model || 'local')}</span>
+                  <span class="mini-badge">${escapeHtml(harnessLabel(run.harness))}</span>
+                  <span class="mini-badge ${status === 'error' ? 'is-err' : ''}">${escapeHtml(status)}</span>
+                </div>
+                <div class="loop-row">
+                  <span>Loop ${steps} / ${maxLoops}</span>
+                  <span>${Number(run.toolCount) || 0} tools</span>
+                </div>
+                <div class="meter"><div class="meter-fill" data-status="${escapeHtml(status)}" style="--value:${pct}"></div></div>
+                <div class="agent-task">${escapeHtml(run.task || 'Local agent task')}</div>
+                <div class="agent-activity">${escapeHtml(activity)}</div>
+              </button>`;
+          })
+          .join('');
+      }
+
+      function renderInspector() {
+        const run = state.runs.find((r) => r.runId === state.selectedRunId);
+        const detail = state.selectedRunId ? state.runDetails.get(state.selectedRunId) : null;
+
+        if (!state.selectedRunId) {
+          inspDot.className = 'live-dot is-done';
+          inspTitle.textContent = 'Select a subagent';
+          inspBadges.innerHTML = '';
+          inspPre.classList.remove('hidden');
+          inspToolsList.classList.add('hidden');
+          inspPre.textContent = 'Click any subagent card above (or a local-subagent pill in chat) to inspect live thinking, tools, and output.';
+          return;
+        }
+
+        const effective = detail?.meta || run || {
+          runId: state.selectedRunId,
+          status: 'pending',
+          model: 'waiting',
+          harness: 'auto',
+          stepsUsed: 0,
+          maxThinkingLoops: 10,
+        };
+        const status = effective.status || 'running';
+        inspDot.className = `live-dot is-${status}`;
+        inspTitle.textContent = effective.runId || state.selectedRunId;
+
+        const typeLabel = agentTypeLabel(effective);
+        const typeClass = typeLabel === 'Coding' ? 'is-coding' : typeLabel === 'Knowledge' ? 'is-knowledge' : '';
+        inspBadges.innerHTML = [
+          `<span class="mini-badge ${typeClass}">${escapeHtml(typeLabel)}</span>`,
+          `<span class="mini-badge">${escapeHtml(effective.displayName || effective.model || 'local')}</span>`,
+          `<span class="mini-badge">${escapeHtml(harnessLabel(effective.harness))}</span>`,
+          `<span class="mini-badge">Think: ${escapeHtml(effective.thinkingLevel || 'auto')}</span>`,
+          `<span class="mini-badge">Loop ${Number(effective.stepsUsed) || 0}/${Number(effective.maxThinkingLoops) || 10}</span>`,
+          `<span class="mini-badge">${escapeHtml(elapsedForRun(effective))}</span>`,
+        ].join('');
+
+        if (state.tab === 'tools') {
+          inspPre.classList.add('hidden');
+          inspToolsList.classList.remove('hidden');
+          const tools = detail?.tools || [];
+          inspToolsList.innerHTML = tools.length
+            ? tools
+                .map(
+                  (t) => `
+                  <div class="tool-row">
+                    <div class="tool-row-head">
+                      <span><strong>${escapeHtml(t.tool)}</strong> (loop ${escapeHtml(t.step ?? '?')})</span>
+                      <span class="mini-badge ${t.status === 'error' ? 'is-err' : t.status === 'ok' ? 'is-knowledge' : 'is-warn'}">${escapeHtml(t.status)}${typeof t.durationMs === 'number' ? ` · ${t.durationMs}ms` : ''}</span>
+                    </div>
+                    ${t.args ? `<pre class="tool-preview">${escapeHtml(typeof t.args === 'string' ? t.args : JSON.stringify(t.args))}</pre>` : ''}
+                    ${t.preview ? `<pre class="tool-preview">${escapeHtml(t.preview)}</pre>` : ''}
+                  </div>`
+                )
+                .join('')
+            : '<div class="empty"><p class="empty-desc">No tool calls recorded yet.</p></div>';
+          return;
+        }
+
+        inspToolsList.classList.add('hidden');
+        inspPre.classList.remove('hidden');
+
+        const wasNearBottom = inspPre.scrollHeight - inspPre.scrollTop - inspPre.clientHeight < 36;
+        if (state.tab === 'stream') {
+          inspPre.textContent =
+            detail?.liveText?.trim() ||
+            (status === 'pending'
+              ? `Waiting for ${state.selectedRunId} to begin…`
+              : 'Streaming live events…');
+        } else if (state.tab === 'thinking') {
+          inspPre.textContent = detail?.thinkingText?.trim() || 'No thinking tokens captured yet.';
+        } else {
+          const taskText = detail?.task || effective.task || '';
+          const replyText = detail?.reply || detail?.contentText || '';
+          inspPre.textContent =
+            `[Task]\n${taskText || '—'}\n\n[Final Reply]\n${replyText || (status === 'running' ? '(still running…)' : '—')}`;
+        }
+        if (wasNearBottom || state.autoFollow) {
+          inspPre.scrollTop = inspPre.scrollHeight;
+        }
+      }
+
+      async function pollSelectedRun() {
+        if (!state.selectedRunId) return;
+        const detail = ensureDetail(state.selectedRunId);
+        const run = state.runs.find((r) => r.runId === state.selectedRunId);
+        if (run?.startedAt && detail.startedAt && run.startedAt !== detail.startedAt) {
+          detail.cursor = 0;
+          detail.thinkingText = '';
+          detail.contentText = '';
+          detail.liveText = '';
+          detail.tools = [];
+          detail.reply = '';
+          detail.lastEventType = '';
+          detail.startedAt = run.startedAt;
+        }
+        try {
+          const res = await apiJson(
+            `/api/streams/poll?runId=${encodeURIComponent(state.selectedRunId)}&cursor=${detail.cursor}`
+          );
+          if (res.exists) {
+            applyPollEvents(detail, res);
+            renderInspector();
+          }
+        } catch {
+          // Ignore transient poll errors.
+        }
+      }
+
+      async function refreshAll() {
+        try {
+          const data = await apiJson('/api/streams?limit=24');
+          const runs = Array.isArray(data.runs) ? data.runs : [];
+          state.runs = runs;
+          if (!state.selectedRunId && runs.length > 0) {
+            const first = sortRuns(runs)[0];
+            state.selectedRunId = first.runId;
+          }
+          renderRoster();
+          await pollSelectedRun();
+        } catch {
+          // Ignore transient fetch errors.
+        }
+      }
+
+      function selectRun(runId) {
+        if (!runId) return;
+        state.selectedRunId = runId;
+        state.autoFollow = true;
+        try {
+          const nextUrl = new URL(window.location.href);
+          nextUrl.searchParams.set('runId', runId);
+          window.history.replaceState(null, '', nextUrl.toString());
+        } catch {}
+        renderRoster();
+        renderInspector();
+        pollSelectedRun();
+      }
+
+      agentsGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-run-id]');
+        if (card) selectRun(card.dataset.runId);
+      });
+
+      filterSeg.addEventListener('click', (e) => {
+        const opt = e.target.closest('[data-filter]');
+        if (!opt) return;
+        state.filter = opt.dataset.filter || 'all';
+        setRadio(filterSeg, (o) => o.dataset.filter === state.filter);
+        renderRoster();
+      });
+
+      tabSeg.addEventListener('click', (e) => {
+        const opt = e.target.closest('[data-tab]');
+        if (!opt) return;
+        state.tab = opt.dataset.tab || 'stream';
+        setRadio(tabSeg, (o) => o.dataset.tab === state.tab);
+        renderInspector();
+      });
+
+      inspPre.addEventListener('scroll', () => {
+        state.autoFollow = inspPre.scrollHeight - inspPre.scrollTop - inspPre.clientHeight < 40;
+      });
+
+      refreshBtn.addEventListener('click', refreshAll);
+
+      settingsBtn.addEventListener('click', () => {
+        const next = new URL('/', window.location.origin);
+        const cur = new URLSearchParams(window.location.search);
+        if (cur.get('token')) next.searchParams.set('token', cur.get('token'));
+        if (cur.get('conversationId')) next.searchParams.set('conversationId', cur.get('conversationId'));
+        window.location.href = next.toString();
+      });
+
+      let pollTimer = null;
+      async function loop() {
+        await refreshAll();
+        const hasActive = state.runs.some((r) => r.status === 'running' || r.runId === state.selectedRunId && r.status !== 'done' && r.status !== 'error');
+        pollTimer = setTimeout(loop, hasActive ? 450 : 1400);
+      }
+
+      setInterval(() => {
+        if (state.runs.some((r) => r.status === 'running')) {
+          renderRoster();
+        }
+      }, 1000);
+
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => {
+          syncIndicator(filterSeg);
+          syncIndicator(tabSeg);
+        });
+        ro.observe(filterSeg);
+        ro.observe(tabSeg);
+      }
+
+      requestAnimationFrame(() => {
+        syncIndicator(filterSeg);
+        syncIndicator(tabSeg);
+      });
+      loop();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+sidecars/agents/cache/config.json
+sidecars/agents/cache/runtime.json
+sidecars/agents/cache/sessions/
+sidecars/agents/cache/streams/
+agents/local-*.md
+!agents/local-model-chat.md
+!agents/local-model-worker.md
+.venv/
+__pycache__/
+*.pyc
+node_modules/

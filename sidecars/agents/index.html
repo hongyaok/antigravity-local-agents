@@ -1,0 +1,2614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Agents</title>
+  <script src="/preload.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Pixelify Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url('/api/font?name=pixelify-sans-cyrillic.woff2') format('woff2');
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: 'Pixelify Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url('/api/font?name=pixelify-sans-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Pixelify Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url('/api/font?name=pixelify-sans-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-400-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-400-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-700-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('/api/font?name=silkscreen-700-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    :root {
+      color-scheme: dark;
+
+      --gray-0: #ffffff;
+      --gray-d-950: #000000;
+      --gray-d-900: #101014;
+      --gray-d-850: #18181e;
+      --gray-d-800: #222229;
+      --gray-d-500: #6f6f7a;
+      --gray-d-400: #a0a0ac;
+      --gray-d-200: #d0d0d8;
+      --gray-d-50: #f4f4f6;
+
+      --green-400: #4ade80;
+      --amber-300: #fcd34d;
+      --red-400: #f87171;
+      --cyan-400: #38bdf8;
+
+      --color-bg-inset: var(--pixel-surface-inset);
+      --color-text-primary: var(--gray-d-50);
+      --color-text-secondary: var(--gray-d-200);
+      --color-text-muted: var(--gray-d-400);
+      --color-border-hairline: rgb(255 255 255 / 0.08);
+
+      --color-accent-solid: var(--gray-d-50);
+      --color-accent-solid-hover: #ffffff;
+      --color-text-on-accent: var(--gray-d-900);
+      --color-focus-ring: var(--gray-d-50);
+
+      --color-status-ok: var(--green-400);
+      --color-status-ok-text: var(--green-400);
+      --color-status-warn: var(--amber-300);
+      --color-status-warn-text: var(--amber-300);
+      --color-status-low: var(--red-400);
+      --color-status-low-text: var(--red-400);
+
+      --pixel-surface: rgb(20 20 25 / 0.92);
+      --pixel-surface-strong: rgb(24 24 30 / 0.96);
+      --pixel-surface-inset: rgb(8 8 11 / 0.85);
+      --pixel-surface-hover: rgb(38 38 48 / 0.94);
+      --pixel-surface-selected: rgb(46 46 58 / 0.96);
+      --pixel-surface-sheen: rgb(255 255 255 / 0.05);
+      --pixel-border: rgb(255 255 255 / 0.17);
+      --pixel-border-strong: rgb(255 255 255 / 0.32);
+      --pixel-bevel-top: rgb(255 255 255 / 0.10);
+      --pixel-bevel-bottom: rgb(0 0 0 / 0.55);
+      --pixel-drop-shadow: rgb(255 255 255 / 0.06);
+      --pixel-drop-shadow-sm: rgb(0 0 0 / 0.65);
+      --pixel-dither-dot: rgb(255 255 255 / 0.032);
+
+      --glass-blur: 18px;
+      --glass-saturate: 1.45;
+      --ambient-accent: #f1b27c;
+
+      --font-pixel: "Pixelify Sans", "Silkscreen", "DotGothic16", "Microsoft YaHei", monospace;
+      --font-pixel-display: "Silkscreen", "Pixelify Sans", "DotGothic16", "Microsoft YaHei", monospace;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --text-caption: 0.6875rem;
+      --text-label: 0.75rem;
+      --text-body: 0.875rem;
+      --text-title: 0.9375rem;
+
+      --pixel-clip-card: polygon(
+        0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0,
+        calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%,
+        4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px)
+      );
+      --pixel-clip-sm: polygon(
+        0 2px, 2px 2px, 2px 0,
+        calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px,
+        100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%,
+        2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px)
+      );
+      --ease-out: cubic-bezier(0.2, 0, 0, 1);
+      --ease-in-out: cubic-bezier(0.45, 0, 0.1, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      background: #000000 !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    @property --ambient-accent {
+      syntax: "<color>";
+      inherits: true;
+      initial-value: #f1b27c;
+    }
+
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100dvh;
+      background: #000000 !important;
+      color: var(--color-text-primary) !important;
+      font-family: var(--font-pixel) !important;
+      font-size: var(--text-body);
+      line-height: 1.45;
+      transition: --ambient-accent 600ms var(--ease-in-out);
+    }
+
+    .app {
+      container: app / inline-size;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 2.5vw, 18px);
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: clamp(14px, 3vw, 24px) clamp(14px, 3.5vw, 28px) clamp(24px, 4vw, 36px);
+    }
+
+    .app[data-ui-mode="simple"] {
+      max-width: 680px;
+    }
+
+    .app[data-ui-mode="simple"] .adv-only { display: none !important; }
+    .app[data-ui-mode="advanced"] .simple-only { display: none !important; }
+
+    .app[data-ui-mode="simple"]:not([data-simple-tab="models"]) [data-simple-pane="models"],
+    .app[data-ui-mode="simple"]:not([data-simple-tab="agent"]) [data-simple-pane="agent"],
+    .app[data-ui-mode="simple"]:not([data-simple-tab="add"]) [data-simple-pane="add"] {
+      display: none !important;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      gap: clamp(14px, 3vw, 22px);
+    }
+
+    @container app (min-width: 680px) {
+      .app[data-ui-mode="advanced"] .main {
+        grid-template-columns: minmax(320px, 1.02fr) minmax(320px, 1.18fr);
+        align-items: start;
+      }
+
+      .app[data-ui-mode="advanced"] #settings-section {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .app[data-ui-mode="advanced"] #catalog-section {
+        grid-column: 2;
+        grid-row: 1;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { appearance: none; margin: 0; border: 0; background: none; cursor: pointer; }
+    button:disabled { cursor: not-allowed; }
+    :focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
+    svg.icon { width: 16px; height: 16px; flex: none; display: block; shape-rendering: crispEdges; }
+    .pressable { transition: scale 140ms ease-out, background-color 140ms ease-out, color 140ms ease-out; }
+    @media (prefers-reduced-motion: no-preference) {
+      .pressable:not(:disabled):active { scale: 0.96; }
+    }
+
+    .card { position: relative; isolation: isolate; }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      transform: translate(3px, 4px);
+      clip-path: var(--pixel-clip-card);
+      background: var(--pixel-drop-shadow);
+    }
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      clip-path: var(--pixel-clip-card);
+      background-color: var(--pixel-surface);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border),
+        inset 0 -2px 0 0 var(--pixel-border),
+        inset 2px 0 0 0 var(--pixel-border),
+        inset -2px 0 0 0 var(--pixel-border);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 32px;
+      padding: 6px 12px;
+      font-family: var(--font-pixel-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      clip-path: var(--pixel-clip-sm);
+      background: var(--color-accent-solid);
+      color: var(--color-text-on-accent);
+      box-shadow: inset 0 -2px 0 0 rgb(0 0 0 / 0.28);
+    }
+
+    .btn-secondary {
+      position: relative;
+      isolation: isolate;
+      color: var(--color-text-primary);
+    }
+    .btn-secondary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--pixel-surface-strong);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+    }
+    .btn-secondary[data-open="true"]::after { background-color: var(--pixel-surface-selected); }
+    .btn:disabled { opacity: 0.45; }
+
+    .chip {
+      position: relative;
+      isolation: isolate;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 4px 10px;
+      color: var(--color-text-secondary);
+      font-family: var(--font-pixel-display);
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .chip::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--pixel-surface-strong);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+    }
+    .chip:hover:not(:disabled) { color: var(--color-text-primary); }
+    .chip:disabled { opacity: 0.45; }
+
+    .icon-btn {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      flex: none;
+      padding: 0;
+      clip-path: var(--pixel-clip-sm);
+      color: var(--color-text-muted);
+    }
+    .icon-btn:hover:not(:disabled) { background: var(--pixel-surface-inset); color: var(--color-text-primary); }
+    .icon-btn:disabled { opacity: 0.4; }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .avatar { position: relative; isolation: isolate; flex: none; padding: 3px; }
+    .avatar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--pixel-surface-strong);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+    }
+    .avatar-inner {
+      width: 30px;
+      height: 30px;
+      background: var(--pixel-surface-inset);
+      display: grid;
+      place-items: center;
+    }
+    .identity-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    h1 {
+      margin: 0;
+      font-family: var(--font-pixel-display);
+      font-size: var(--text-title);
+      line-height: 1.2;
+      font-weight: 700;
+    }
+    .identity-sub {
+      font-size: var(--text-label);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Segmented */
+    .segmented {
+      position: relative;
+      display: flex;
+      padding: 3px;
+      gap: 2px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border),
+        inset 0 -2px 0 0 var(--pixel-border),
+        inset 2px 0 0 0 var(--pixel-border),
+        inset -2px 0 0 0 var(--pixel-border);
+      isolation: isolate;
+    }
+    .seg-indicator {
+      position: absolute;
+      z-index: -1;
+      top: 3px;
+      bottom: 3px;
+      left: 0;
+      width: var(--w, 0px);
+      translate: var(--x, 0px) 0;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-selected);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-bevel-top),
+        inset 0 -2px 0 0 var(--pixel-bevel-bottom),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+      pointer-events: none;
+    }
+    .segmented.is-ready .seg-indicator {
+      transition: translate 220ms var(--ease-out), width 220ms var(--ease-out);
+    }
+    .seg-option {
+      flex: 1 1 auto;
+      min-height: 24px;
+      padding: 3px 9px;
+      font-size: var(--text-caption);
+      font-weight: 700;
+      text-align: center;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      transition: color 150ms ease-out;
+    }
+    .seg-option:hover, .seg-option[aria-checked="true"] { color: var(--color-text-primary); }
+
+    /* Live Stream Strip */
+    .live-strip {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .live-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .live-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green-400);
+      flex: none;
+    }
+    .live-dot.is-running { animation: pulse 1.1s ease-in-out infinite; }
+    .live-dot.is-done { background: var(--cyan-400); }
+    .live-dot.is-error { background: var(--red-400); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .live-pre {
+      margin: 0;
+      padding: 7px 9px;
+      background: var(--pixel-surface-inset);
+      border: 1px solid var(--pixel-border);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      line-height: 1.4;
+      color: var(--gray-d-200);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    /* Sections */
+    .section { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .pane-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-inline: 2px;
+    }
+    .section-label {
+      margin: 0;
+      font-family: var(--font-pixel-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+
+    /* Provider Picker */
+    .provider-picker { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .provider-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+    .provider-card {
+      --p-bg: var(--pixel-surface-inset);
+      --p-border: var(--pixel-border);
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      padding: 9px;
+      text-align: left;
+      min-width: 0;
+      color: var(--color-text-secondary);
+      transition: translate 140ms ease-out, color 140ms ease-out;
+    }
+    .provider-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--p-bg);
+      box-shadow:
+        inset 0 2px 0 0 var(--p-border),
+        inset 0 -2px 0 0 var(--p-border),
+        inset 2px 0 0 0 var(--p-border),
+        inset -2px 0 0 0 var(--p-border);
+    }
+    .provider-card:hover { --p-bg: var(--pixel-surface-hover); --p-border: var(--pixel-border-strong); color: var(--color-text-primary); }
+    .provider-card[aria-checked="true"] {
+      --p-bg: color-mix(in oklab, var(--ambient-accent) 14%, var(--pixel-surface-selected));
+      --p-border: var(--color-accent-solid);
+      color: var(--color-text-primary);
+    }
+    .provider-card-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .provider-icon { width: 20px; height: 20px; display: grid; place-items: center; background: var(--pixel-surface-strong); border: 1px solid var(--pixel-border); flex: none; }
+    .provider-card[aria-checked="true"] .provider-icon { border-color: var(--ambient-accent); }
+    .provider-badge {
+      padding: 1px 5px;
+      font-family: var(--font-pixel-display);
+      font-size: 0.54rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-strong);
+      border: 1px solid var(--pixel-border);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+    .provider-badge.is-online { color: var(--color-status-ok-text); border-color: color-mix(in oklab, var(--color-status-ok) 55%, var(--pixel-border)); }
+    .provider-badge.is-saved { color: var(--amber-300); }
+    .provider-title { width: 100%; font-family: var(--font-pixel-display); font-size: 0.7rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .provider-meta { width: 100%; font-size: 0.64rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .saved-strip { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 2px solid var(--color-border-hairline); }
+    .saved-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    /* Settings & Form Controls */
+    .settings { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .setting { display: flex; flex-direction: column; gap: 6px; }
+    .setting + .setting { padding-top: 10px; border-top: 2px solid var(--color-border-hairline); }
+    .setting-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .setting-label { font-size: var(--text-label); font-weight: 700; color: var(--color-text-primary); }
+    .setting-desc { font-size: var(--text-caption); color: var(--color-text-muted); }
+    .input-row { display: flex; align-items: center; gap: 6px; }
+
+    .pixel-input, .pixel-select, .pixel-textarea {
+      width: 100%;
+      min-height: 32px;
+      padding: 5px 9px;
+      border: 2px solid var(--pixel-border);
+      border-radius: 0;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      font-size: var(--text-label);
+      color: var(--color-text-primary);
+    }
+    .pixel-textarea { min-height: 64px; resize: vertical; font-family: var(--font-mono); font-size: 0.75rem; }
+    .pixel-input::placeholder, .pixel-textarea::placeholder { color: var(--color-text-muted); opacity: 1; }
+    .pixel-input:focus-visible, .pixel-select:focus-visible, .pixel-textarea:focus-visible { outline: none; border-color: var(--color-focus-ring); background: var(--pixel-surface-strong); }
+
+    .switch {
+      position: relative;
+      flex: none;
+      width: 40px;
+      height: 22px;
+      padding: 0;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+      transition: background-color 150ms ease-out;
+    }
+    .switch[aria-checked="true"] { background: var(--color-status-ok); }
+    .switch-thumb {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 14px;
+      height: 14px;
+      background: var(--gray-0);
+      transition: translate 200ms var(--ease-out);
+      pointer-events: none;
+    }
+    .switch[aria-checked="true"] .switch-thumb { translate: 18px 0; }
+
+    /* Harness & Thinking */
+    .harness-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 8px; }
+    .harness-card { justify-content: flex-start; }
+    .harness-desc { width: 100%; font-size: 0.64rem; line-height: 1.3; color: var(--color-text-muted); }
+
+    .thinking-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 4px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border),
+        inset 0 -2px 0 0 var(--pixel-border),
+        inset 2px 0 0 0 var(--pixel-border),
+        inset -2px 0 0 0 var(--pixel-border);
+    }
+    .thinking-pill {
+      flex: 1 1 auto;
+      min-width: 40px;
+      min-height: 24px;
+      padding: 3px 7px;
+      clip-path: var(--pixel-clip-sm);
+      font-size: var(--text-caption);
+      font-weight: 700;
+      text-align: center;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+    .thinking-pill:hover { color: var(--color-text-primary); background: var(--pixel-surface-hover); }
+    .thinking-pill[aria-checked="true"] {
+      color: var(--color-text-primary);
+      background: color-mix(in oklab, var(--ambient-accent) 16%, var(--pixel-surface-selected));
+      box-shadow: inset 0 0 0 1px var(--pixel-border-strong);
+    }
+
+    /* Added Models */
+    .added-list { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+    .added-item {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding: 9px 11px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      border: 1px solid var(--pixel-border);
+    }
+    .added-item.is-default {
+      border-color: var(--ambient-accent);
+      background: color-mix(in oklab, var(--ambient-accent) 8%, var(--pixel-surface-inset));
+    }
+    .added-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .added-info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .added-name { font-family: var(--font-pixel-display); font-size: 0.72rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .added-meta { font-size: var(--text-caption); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .added-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+
+    .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      font-family: var(--font-pixel-display);
+      font-size: 0.56rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-selected);
+      color: var(--amber-300);
+      border: 1px solid var(--pixel-border);
+    }
+    .mini-badge.is-agent-cfg { color: var(--cyan-400); }
+    .mini-badge.is-override { color: var(--amber-300); border-color: color-mix(in oklab, var(--ambient-accent) 55%, var(--pixel-border)); }
+
+    .mini-btn {
+      padding: 3px 8px;
+      font-family: var(--font-pixel-display);
+      font-size: 0.58rem;
+      font-weight: 700;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-strong);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--pixel-border);
+    }
+    .mini-btn:hover { background: var(--pixel-surface-hover); color: var(--color-text-primary); }
+    .mini-btn.is-active { border-color: var(--ambient-accent); color: var(--color-text-primary); background: var(--pixel-surface-selected); }
+    .mini-btn.is-danger:hover { color: var(--red-400); border-color: var(--red-400); }
+
+    .added-overrides { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 6px; }
+    .override-field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 3px 6px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-strong);
+      border: 1px solid var(--pixel-border);
+    }
+    .override-field.is-override { border-color: var(--ambient-accent); }
+    .override-lbl { flex: none; font-family: var(--font-pixel-display); font-size: 0.54rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); }
+    .mini-select { flex: 1 1 auto; min-width: 0; border: 0; background: var(--pixel-surface-strong); font-family: var(--font-pixel); font-size: 0.65rem; color: var(--color-text-primary); cursor: pointer; }
+    .mini-select option, .pixel-select option { background: var(--gray-d-850); color: var(--color-text-primary); }
+
+    /* Catalog */
+    .catalog { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .catalog-tools { display: flex; flex-direction: column; gap: 8px; }
+    .catalog-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .search { position: relative; display: flex; align-items: center; }
+    .search .icon { position: absolute; inset-inline-start: 10px; color: var(--color-text-muted); pointer-events: none; }
+    .search-input {
+      width: 100%;
+      min-height: 34px;
+      padding: 5px 34px;
+      border: 2px solid var(--pixel-border);
+      clip-path: var(--pixel-clip-sm);
+      background: var(--pixel-surface-inset);
+      font-size: var(--text-label);
+      color: var(--color-text-primary);
+    }
+    .search-input::placeholder { color: var(--color-text-muted); opacity: 1; }
+    .search-clear { position: absolute; inset-inline-end: 4px; visibility: hidden; opacity: 0; }
+    .search-clear.visible { visibility: visible; opacity: 1; }
+
+    .model-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
+    .model-grid.is-loading { opacity: 0.5; }
+    .model-tile {
+      --tile-border: var(--pixel-border);
+      --tile-bg: var(--pixel-surface-inset);
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
+      padding: 8px;
+      text-align: left;
+      min-width: 0;
+      color: var(--color-text-secondary);
+    }
+    .model-tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      clip-path: var(--pixel-clip-sm);
+      background-color: var(--tile-bg);
+      box-shadow:
+        inset 0 2px 0 0 var(--tile-border),
+        inset 0 -2px 0 0 var(--tile-border),
+        inset 2px 0 0 0 var(--tile-border),
+        inset -2px 0 0 0 var(--tile-border);
+    }
+    .model-tile:hover { --tile-bg: var(--pixel-surface-hover); --tile-border: var(--pixel-border-strong); color: var(--color-text-primary); }
+    .model-tile[aria-pressed="true"] { --tile-bg: var(--pixel-surface-selected); --tile-border: var(--color-accent-solid); color: var(--color-text-primary); }
+    .tile-art {
+      position: relative;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px;
+      background:
+        linear-gradient(to right, var(--pixel-dither-dot) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--pixel-dither-dot) 1px, transparent 1px),
+        var(--pixel-surface-inset);
+      background-size: 8px 8px;
+      border: 1px solid var(--color-border-hairline);
+    }
+    .tile-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-family: var(--font-pixel-display); font-size: 0.54rem; color: var(--color-text-muted); }
+    .tile-name { font-size: var(--text-label); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tile-sub { font-size: 0.64rem; color: var(--color-text-muted); }
+    .tile-check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 16px;
+      height: 16px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--color-accent-solid);
+      color: var(--color-text-on-accent);
+      display: grid;
+      place-items: center;
+      opacity: 0;
+    }
+    .tile-check svg { width: 11px; height: 11px; }
+    .model-tile[aria-pressed="true"] .tile-check { opacity: 1; }
+
+    .catalog-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 2px solid var(--color-border-hairline);
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .pager { display: flex; gap: 4px; }
+
+    .empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 20px 10px; text-align: center; }
+    .empty-title { margin: 0; font-family: var(--font-pixel-display); font-size: 0.72rem; font-weight: 700; }
+    .empty-desc { margin: 0; font-size: var(--text-label); color: var(--color-text-muted); }
+
+    /* Modal */
+    .usage {
+      position: fixed;
+      isolation: isolate;
+      z-index: 40;
+      top: 50%;
+      left: 50%;
+      translate: -50% -50%;
+      width: min(460px, calc(100vw - 24px));
+      max-height: min(540px, calc(100dvh - 32px));
+      display: flex;
+      flex-direction: column;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 150ms, visibility 0s 150ms;
+    }
+    .usage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      clip-path: var(--pixel-clip-card);
+      background-color: var(--pixel-surface-strong);
+      -webkit-backdrop-filter: blur(24px) saturate(1.6);
+      backdrop-filter: blur(24px) saturate(1.6);
+      box-shadow:
+        inset 0 2px 0 0 var(--pixel-border-strong),
+        inset 0 -2px 0 0 var(--pixel-border-strong),
+        inset 2px 0 0 0 var(--pixel-border-strong),
+        inset -2px 0 0 0 var(--pixel-border-strong);
+    }
+    .usage.is-open { visibility: visible; opacity: 1; transition: opacity 200ms, visibility 0s; }
+    .usage-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 12px 12px 8px 14px; }
+    .usage-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .usage-title { margin: 0; font-family: var(--font-pixel-display); font-size: 0.74rem; font-weight: 700; text-transform: uppercase; }
+    .usage-sub { font-size: var(--text-caption); color: var(--color-text-muted); }
+    .usage-tools { display: flex; gap: 4px; }
+    .usage-tabs { padding: 0 14px 8px; }
+    .usage-body { overflow-y: auto; padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .usage-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .usage-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: 10px; row-gap: 4px; }
+    .usage-name { font-size: var(--text-label); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .usage-meta { display: flex; align-items: baseline; gap: 6px; font-size: var(--text-caption); }
+    .usage-status { padding: 1px 6px; font-family: var(--font-pixel-display); font-size: 0.58rem; font-weight: 700; text-transform: uppercase; background: var(--color-bg-inset); border: 1px solid var(--pixel-border); color: var(--color-status-ok-text); }
+    .usage-status[data-tone="warn"] { color: var(--color-status-warn-text); }
+    .usage-status[data-tone="low"] { color: var(--color-status-low-text); }
+    .usage-pct { font-family: var(--font-pixel-display); font-size: 0.68rem; font-weight: 700; }
+    .meter { grid-column: 1 / -1; height: 7px; padding: 1px; background: var(--pixel-surface-inset); border: 1px solid var(--pixel-border); overflow: hidden; }
+    .meter-fill { height: 100%; width: 100%; background: var(--color-status-ok); transform-origin: left center; scale: var(--value, 0) 1; }
+    .meter-fill[data-tone="warn"] { background: var(--color-status-warn); }
+    .meter-fill[data-tone="low"] { background: var(--color-status-low); }
+    .code-pre {
+      margin: 0;
+      padding: 8px;
+      background: var(--pixel-surface-inset);
+      border: 2px solid var(--pixel-border);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      line-height: 1.4;
+      color: var(--gray-d-200);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .modal-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    #bubble-refresh.is-spinning svg { animation: spin 700ms linear infinite; }
+    @keyframes spin { to { rotate: 360deg; } }
+
+    .hidden { display: none !important; }
+    .loops-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .loops-stepper { display: inline-flex; align-items: center; gap: 4px; }
+    .loops-input {
+      width: 52px;
+      height: 26px;
+      padding: 0 6px;
+      text-align: center;
+      font-family: var(--font-pixel-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      background: var(--pixel-surface-inset);
+      border: 2px solid var(--pixel-border);
+    }
+    .loops-input:focus { outline: none; border-color: var(--color-accent-solid); }
+    .loops-presets { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 60;
+      translate: -50% 0;
+      padding: 7px 12px;
+      clip-path: var(--pixel-clip-sm);
+      background: var(--color-accent-solid);
+      color: var(--color-text-on-accent);
+      font-family: var(--font-pixel-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 180ms ease-out, visibility 0s 180ms;
+    }
+    .toast.show { visibility: visible; opacity: 1; transition: opacity 200ms ease-out, visibility 0s; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app" data-ui-mode="simple" data-simple-tab="models">
+    <header class="header">
+      <div class="identity">
+        <div class="avatar" aria-hidden="true">
+          <div class="avatar-inner">
+            <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="none">
+              <rect x="2" y="2" width="12" height="12" fill="#18181E"/>
+              <rect x="2" y="2" width="12" height="2" fill="#F4F4F6"/>
+              <rect x="2" y="12" width="12" height="2" fill="#F4F4F6"/>
+              <rect x="2" y="2" width="2" height="12" fill="#F4F4F6"/>
+              <rect x="12" y="2" width="2" height="12" fill="#F4F4F6"/>
+              <rect x="7" y="5" width="2" height="6" fill="#4ADE80"/>
+              <rect x="5" y="7" width="6" height="2" fill="#4ADE80"/>
+            </svg>
+          </div>
+        </div>
+        <div class="identity-text">
+          <h1>Local Agents</h1>
+          <span class="identity-sub" id="active-model-pill">No models</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="segmented" id="ui-mode-toggle" role="radiogroup" aria-label="UI mode">
+          <span class="seg-indicator" aria-hidden="true"></span>
+          <button type="button" class="seg-option pressable" role="radio" data-ui-mode="simple" aria-checked="true" tabindex="0">Simple</button>
+          <button type="button" class="seg-option pressable" role="radio" data-ui-mode="advanced" aria-checked="false" tabindex="-1">Advanced</button>
+        </div>
+        <button type="button" class="chip pressable" id="scan-chip">Scan</button>
+        <button type="button" class="chip pressable" id="test-chip">Test</button>
+        <button type="button" class="chip pressable" id="monitor-chip">Monitor</button>
+        <button type="button" class="chip pressable adv-only" id="sdk-chip">SDK</button>
+        <button id="usage-btn" class="btn btn-secondary pressable adv-only" type="button" aria-expanded="false" aria-controls="usage-bubble" data-open="false">Quotas</button>
+      </div>
+    </header>
+
+    <!-- Live Stream Activity Strip -->
+    <section class="card live-strip hidden" id="live-streams-strip" aria-label="Live local agent stream">
+      <div class="live-head">
+        <div class="live-left">
+          <span class="live-dot" id="live-dot"></span>
+          <span class="setting-label" id="live-title">Idle</span>
+          <span class="mini-badge is-agent-cfg" id="live-badge"></span>
+        </div>
+        <button type="button" class="mini-btn pressable" id="live-toggle-btn">Hide</button>
+      </div>
+      <pre class="live-pre hidden" id="live-pre"></pre>
+    </section>
+
+    <!-- Simple Mode Navigation Tabs -->
+    <nav class="simple-only" aria-label="Simple navigation">
+      <div class="segmented" id="simple-nav" role="tablist">
+        <span class="seg-indicator" aria-hidden="true"></span>
+        <button type="button" class="seg-option pressable" role="tab" data-simple-tab="models" aria-checked="true" tabindex="0">Models</button>
+        <button type="button" class="seg-option pressable" role="tab" data-simple-tab="agent" aria-checked="false" tabindex="-1">Agent</button>
+        <button type="button" class="seg-option pressable" role="tab" data-simple-tab="add" aria-checked="false" tabindex="-1">Add</button>
+      </div>
+    </nav>
+
+    <main class="main">
+      <!-- Left Column (or Active Simple Tab Pane) -->
+      <section class="section" id="settings-section">
+        <!-- Models List -->
+        <div class="pane-group" data-simple-pane="models" id="models-block">
+          <div class="section-head">
+            <h2 class="section-label" id="added-label">Local Models</h2>
+            <span class="setting-desc" id="added-count-badge">0</span>
+          </div>
+          <div class="card added-list" id="added-list" aria-labelledby="added-label">
+            <div class="empty">
+              <p class="empty-title">No models yet</p>
+              <p class="empty-desc">Fetch models to add.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent Harness & Thinking -->
+        <div class="pane-group" data-simple-pane="agent" id="agent-block">
+          <div class="section-head">
+            <h2 class="section-label" id="harness-label">Agent Defaults</h2>
+            <span class="setting-desc" id="agent-settings-badge">Auto · Auto</span>
+          </div>
+          <div class="card settings" id="agent-settings-card" aria-labelledby="harness-label">
+            <div class="setting">
+              <div class="setting-head">
+                <span class="setting-label">Harness</span>
+                <span class="setting-desc" id="harness-active-label">Auto</span>
+              </div>
+              <div class="harness-grid" id="harness-grid" role="radiogroup" aria-label="Agent harness"></div>
+            </div>
+
+            <div class="setting">
+              <div class="setting-head">
+                <span class="setting-label">Thinking</span>
+                <span class="setting-desc" id="thinking-hint-label">Server default</span>
+              </div>
+              <div class="thinking-pills" id="thinking-pills" role="radiogroup" aria-label="Thinking level"></div>
+            </div>
+
+            <div class="setting">
+              <div class="setting-head">
+                <div>
+                  <span class="setting-label" id="verbose-label">Stream Thinking</span>
+                  <div class="setting-desc adv-only" id="verbose-hint-label">Live trace in chat</div>
+                </div>
+                <button type="button" class="switch pressable" id="verbose-thinking-toggle" role="switch" aria-checked="true" aria-labelledby="verbose-label"><span class="switch-thumb" aria-hidden="true"></span></button>
+              </div>
+            </div>
+
+            <div class="setting">
+              <div class="setting-head">
+                <span class="setting-label" id="max-loops-label">Max Thinking Loops</span>
+                <span class="setting-desc" id="max-loops-hint">Direct calls</span>
+              </div>
+              <div class="loops-row">
+                <div class="loops-stepper">
+                  <button type="button" class="mini-btn pressable" id="max-loops-dec" aria-label="Decrease max thinking loops">−</button>
+                  <input type="number" class="loops-input" id="max-loops-input" min="1" max="50" step="1" value="10" aria-labelledby="max-loops-label" />
+                  <button type="button" class="mini-btn pressable" id="max-loops-inc" aria-label="Increase max thinking loops">+</button>
+                </div>
+                <div class="loops-presets" id="max-loops-pills" role="radiogroup" aria-label="Max thinking loops presets">
+                  <button type="button" class="thinking-pill pressable" role="radio" data-loops="3" aria-checked="false">3</button>
+                  <button type="button" class="thinking-pill pressable" role="radio" data-loops="5" aria-checked="false">5</button>
+                  <button type="button" class="thinking-pill pressable" role="radio" data-loops="10" aria-checked="true">10</button>
+                  <button type="button" class="thinking-pill pressable" role="radio" data-loops="15" aria-checked="false">15</button>
+                  <button type="button" class="thinking-pill pressable" role="radio" data-loops="20" aria-checked="false">20</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Provider & Endpoint -->
+        <div class="pane-group" data-simple-pane="add" id="provider-block">
+          <div class="section-head">
+            <h2 class="section-label" id="provider-label">Provider</h2>
+            <button type="button" class="mini-btn pressable" id="inline-scan-btn">Scan</button>
+          </div>
+          <div class="card provider-picker">
+            <div class="provider-toolbar adv-only">
+              <div class="segmented" id="provider-category-pills" role="radiogroup" aria-label="Provider categories">
+                <span class="seg-indicator" aria-hidden="true"></span>
+                <button type="button" class="seg-option pressable" role="radio" data-category="all" aria-checked="true" tabindex="0">All</button>
+                <button type="button" class="seg-option pressable" role="radio" data-category="local" aria-checked="false" tabindex="-1">Local</button>
+                <button type="button" class="seg-option pressable" role="radio" data-category="cloud" aria-checked="false" tabindex="-1">Cloud</button>
+                <button type="button" class="seg-option pressable" role="radio" data-category="saved" aria-checked="false" tabindex="-1">Saved</button>
+              </div>
+              <span class="setting-desc" id="scan-summary">Scanning…</span>
+            </div>
+            <div class="provider-grid" id="provider-grid" role="radiogroup" aria-label="Providers"></div>
+            <div class="saved-strip hidden adv-only" id="saved-strip">
+              <span class="setting-desc">Saved</span>
+              <div class="saved-chips" id="saved-chips"></div>
+            </div>
+          </div>
+
+          <div class="section-head" style="margin-top:4px;">
+            <h2 class="section-label" id="endpoint-label">Endpoint</h2>
+            <span class="setting-desc" id="selected-provider-badge">Ollama</span>
+          </div>
+          <div class="card settings">
+            <div class="setting">
+              <div class="setting-head">
+                <label class="setting-label" for="base-url-input">URL</label>
+                <span class="setting-desc adv-only" id="preset-hint">Local Ollama</span>
+              </div>
+              <input class="pixel-input" id="base-url-input" type="url" autocomplete="off" spellcheck="false" placeholder="http://localhost:11434/v1">
+            </div>
+
+            <div class="setting" id="api-key-block">
+              <div class="setting-head">
+                <label class="setting-label" for="api-key-input">API Key <span class="setting-desc" id="key-requirement-label">(Optional)</span></label>
+                <span class="setting-desc" id="key-status-label">Not set</span>
+              </div>
+              <div class="input-row">
+                <input class="pixel-input" id="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Bearer token (sk-...)">
+                <button type="button" class="btn btn-secondary pressable" id="toggle-key-btn" style="min-height:32px; padding:4px 9px;">Show</button>
+              </div>
+            </div>
+
+            <div class="setting">
+              <div class="input-row" style="flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary pressable" id="search-models-btn" style="flex:1 1 130px;">Fetch</button>
+                <button type="button" class="btn btn-secondary pressable simple-only" id="simple-key-toggle">Key</button>
+                <button type="button" class="btn btn-secondary pressable adv-only" id="manual-toggle-btn">+ Manual</button>
+              </div>
+              <span class="setting-desc" id="connection-status">Ready</span>
+              <div id="manual-drawer" class="hidden" style="display:flex; flex-direction:column; gap:7px; padding-top:6px;">
+                <input class="pixel-input" id="manual-id-input" type="text" placeholder="Model ID (e.g. gemma4:26b)">
+                <div class="input-row">
+                  <input class="pixel-input" id="manual-name-input" type="text" placeholder="Display name">
+                  <button type="button" class="btn btn-secondary pressable" id="manual-add-btn">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column (or Add Tab Catalog) -->
+      <section class="section" id="catalog-section" data-simple-pane="add" aria-labelledby="catalog-label">
+        <div class="section-head">
+          <h2 class="section-label" id="catalog-label">Catalog</h2>
+          <button type="button" class="mini-btn pressable adv-only" id="add-filtered-btn" disabled>+ Add All</button>
+        </div>
+
+        <div class="card catalog">
+          <div class="catalog-tools">
+            <div class="search">
+              <label class="sr-only" for="search-input">Filter models</label>
+              <svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M4 2h4v2H4zM4 8h4v2H4zM2 4h2v4H2zm6 0h2v4H8zM9 9h2v2H9zm2 2h2v2h-2zm1 1h2v2h-2z" />
+              </svg>
+              <input class="search-input" id="search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Filter models...">
+              <button type="button" class="icon-btn search-clear pressable" id="search-clear" aria-label="Clear">
+                <svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M3 3h2v2H3zm8 0h2v2h-2zM5 5h2v2H5zm4 0h2v2H9zM7 7h2v2H7zM5 9h2v2H5zm4 0h2v2H9zM3 11h2v2H3zm8 0h2v2h-2z" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="catalog-row adv-only">
+              <div class="segmented" id="filter-pills" role="radiogroup" aria-label="Filter models">
+                <span class="seg-indicator" aria-hidden="true"></span>
+                <button type="button" class="seg-option pressable" role="radio" data-filter="all" aria-checked="true" tabindex="0">All</button>
+                <button type="button" class="seg-option pressable" role="radio" data-filter="available" aria-checked="false" tabindex="-1">New</button>
+                <button type="button" class="seg-option pressable" role="radio" data-filter="added" aria-checked="false" tabindex="-1">Added</button>
+              </div>
+              <span class="setting-desc" id="endpoint-badge">Idle</span>
+            </div>
+          </div>
+
+          <div class="model-grid" id="model-grid" aria-label="Discovered models">
+            <div class="empty">
+              <p class="empty-title">Ready</p>
+              <p class="empty-desc">Click Fetch to browse models.</p>
+            </div>
+          </div>
+
+          <div class="catalog-foot">
+            <span id="picker-summary" aria-live="polite">0 models</span>
+            <div class="pager">
+              <button id="prev-btn" class="icon-btn pressable" type="button" aria-label="Previous" disabled>
+                <svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9 3h2v2H9zM7 5h2v2H7zM5 7h2v2H5zM7 9h2v2H7zM9 11h2v2H9z" /></svg>
+              </button>
+              <button id="next-btn" class="icon-btn pressable" type="button" aria-label="Next" disabled>
+                <svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5 3h2v2H5zM7 5h2v2H7zM9 7h2v2H9zM7 9h2v2H7zM5 11h2v2H5z" /></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Popover Dialog: Quotas / Test / SDK -->
+  <div class="usage" id="usage-bubble" role="dialog" aria-labelledby="usage-title" aria-hidden="true" tabindex="-1">
+    <div class="usage-head">
+      <div class="usage-titles">
+        <h2 class="usage-title" id="usage-title">Runtime</h2>
+        <span class="usage-sub" id="bubble-sub">Ready</span>
+      </div>
+      <div class="usage-tools">
+        <button class="icon-btn pressable" id="bubble-refresh" type="button" aria-label="Refresh">
+          <svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M4 3h6v2H4zM2 5h2v4H2zM9 2h2v4H9zm2 1h2v2h-2zM6 11h6v2H6zm6-4h2v4h-2zM5 10h2v4H5zm-2 1h2v2H3z" />
+          </svg>
+        </button>
+        <button class="icon-btn pressable" id="bubble-close" type="button" aria-label="Close">
+          <svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M3 3h2v2H3zm8 0h2v2h-2zM5 5h2v2H5zm4 0h2v2H9zM7 7h2v2H7zM5 9h2v2H5zm4 0h2v2H9zM3 11h2v2H3zm8 0h2v2h-2z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="usage-tabs">
+      <div class="segmented" id="bubble-tabs" role="tablist" aria-label="Dialog tabs">
+        <span class="seg-indicator" aria-hidden="true"></span>
+        <button type="button" class="seg-option pressable" role="tab" data-tab="quota" aria-checked="true" tabindex="0">Quotas</button>
+        <button type="button" class="seg-option pressable" role="tab" data-tab="test" aria-checked="false" tabindex="-1">Test</button>
+        <button type="button" class="seg-option pressable" role="tab" data-tab="sdk" aria-checked="false" tabindex="-1">SDK</button>
+      </div>
+    </div>
+
+    <div class="usage-body" id="bubble-body" aria-live="polite"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const apiFetch = (url, opts) => {
+        if (window.sidecar && typeof window.sidecar.fetch === 'function') {
+          return window.sidecar.fetch(url, opts);
+        }
+        return window.fetch(url, opts);
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const appEl = $('app');
+      const activeModelPill = $('active-model-pill');
+      const uiModeToggle = $('ui-mode-toggle');
+      const simpleNav = $('simple-nav');
+      const usageBtn = $('usage-btn');
+      const scanChip = $('scan-chip');
+      const testChip = $('test-chip');
+      const monitorChip = $('monitor-chip');
+      const sdkChip = $('sdk-chip');
+      const usageBubble = $('usage-bubble');
+      const bubbleSub = $('bubble-sub');
+      const bubbleBody = $('bubble-body');
+      const bubbleClose = $('bubble-close');
+      const bubbleRefresh = $('bubble-refresh');
+      const bubbleTabs = $('bubble-tabs');
+      const providerCategoryPills = $('provider-category-pills');
+      const providerGrid = $('provider-grid');
+      const savedStrip = $('saved-strip');
+      const savedChips = $('saved-chips');
+      const scanSummary = $('scan-summary');
+      const selectedProviderBadge = $('selected-provider-badge');
+      const presetHint = $('preset-hint');
+      const baseUrlInput = $('base-url-input');
+      const apiKeyBlock = $('api-key-block');
+      const apiKeyInput = $('api-key-input');
+      const toggleKeyBtn = $('toggle-key-btn');
+      const simpleKeyToggle = $('simple-key-toggle');
+      const keyRequirementLabel = $('key-requirement-label');
+      const keyStatusLabel = $('key-status-label');
+      const inlineScanBtn = $('inline-scan-btn');
+      const searchModelsBtn = $('search-models-btn');
+      const connectionStatus = $('connection-status');
+      const manualToggleBtn = $('manual-toggle-btn');
+      const manualDrawer = $('manual-drawer');
+      const manualIdInput = $('manual-id-input');
+      const manualNameInput = $('manual-name-input');
+      const manualAddBtn = $('manual-add-btn');
+      const agentSettingsBadge = $('agent-settings-badge');
+      const harnessActiveLabel = $('harness-active-label');
+      const harnessGrid = $('harness-grid');
+      const thinkingHintLabel = $('thinking-hint-label');
+      const thinkingPills = $('thinking-pills');
+      const verboseThinkingToggle = $('verbose-thinking-toggle');
+      const verboseHintLabel = $('verbose-hint-label');
+      const maxLoopsInput = $('max-loops-input');
+      const maxLoopsDec = $('max-loops-dec');
+      const maxLoopsInc = $('max-loops-inc');
+      const maxLoopsPills = $('max-loops-pills');
+      const maxLoopsHint = $('max-loops-hint');
+      const addedList = $('added-list');
+      const addedCountBadge = $('added-count-badge');
+      const addFilteredBtn = $('add-filtered-btn');
+      const searchInput = $('search-input');
+      const searchClear = $('search-clear');
+      const filterPills = $('filter-pills');
+      const endpointBadge = $('endpoint-badge');
+      const modelGrid = $('model-grid');
+      const pickerSummary = $('picker-summary');
+      const prevBtn = $('prev-btn');
+      const nextBtn = $('next-btn');
+      const toastEl = $('toast');
+      const liveStrip = $('live-streams-strip');
+      const liveDot = $('live-dot');
+      const liveTitle = $('live-title');
+      const liveBadge = $('live-badge');
+      const livePre = $('live-pre');
+      const liveToggleBtn = $('live-toggle-btn');
+
+      const PROVIDER_ICONS = {
+        ollama: '<rect x="5" y="3" width="6" height="2" fill="#4ade80"/><rect x="4" y="5" width="8" height="6" fill="#f4f4f6"/><rect x="6" y="6" width="1" height="2" fill="#101014"/><rect x="9" y="6" width="1" height="2" fill="#101014"/><rect x="5" y="11" width="2" height="2" fill="#a0a0ac"/><rect x="9" y="11" width="2" height="2" fill="#a0a0ac"/>',
+        lmstudio: '<rect x="2" y="3" width="12" height="10" fill="#38bdf8"/><rect x="4" y="5" width="8" height="6" fill="#101014"/><rect x="6" y="7" width="4" height="2" fill="#f4f4f6"/>',
+        vllm: '<rect x="7" y="2" width="4" height="2" fill="#fcd34d"/><rect x="5" y="4" width="4" height="3" fill="#fcd34d"/><rect x="4" y="7" width="8" height="2" fill="#f4f4f6"/><rect x="6" y="9" width="4" height="3" fill="#fcd34d"/>',
+        litert: '<rect x="3" y="3" width="10" height="10" fill="#296861"/><rect x="5" y="5" width="6" height="6" fill="#4ade80"/>',
+        openrouter: '<rect x="3" y="4" width="3" height="3" fill="#f1b27c"/><rect x="10" y="4" width="3" height="3" fill="#4ade80"/><rect x="6" y="7" width="4" height="2" fill="#f4f4f6"/>',
+        openai: '<rect x="5" y="2" width="6" height="2" fill="#f4f4f6"/><rect x="3" y="4" width="2" height="8" fill="#f4f4f6"/><rect x="11" y="4" width="2" height="8" fill="#f4f4f6"/><rect x="5" y="12" width="6" height="2" fill="#f4f4f6"/><rect x="6" y="6" width="4" height="4" fill="#4ade80"/>',
+        deepseek: '<rect x="3" y="6" width="10" height="5" fill="#38bdf8"/><rect x="5" y="4" width="6" height="2" fill="#38bdf8"/>',
+        groq: '<rect x="4" y="3" width="8" height="2" fill="#f1b27c"/><rect x="3" y="5" width="2" height="6" fill="#f1b27c"/><rect x="11" y="5" width="2" height="6" fill="#f1b27c"/><rect x="4" y="11" width="8" height="2" fill="#f1b27c"/>',
+        custom: '<rect x="4" y="3" width="8" height="2" fill="#a0a0ac"/><rect x="3" y="5" width="10" height="6" fill="#383842"/><rect x="5" y="7" width="2" height="2" fill="#f1b27c"/><rect x="9" y="7" width="2" height="2" fill="#f1b27c"/>',
+      };
+
+      const HARNESS_ICONS = {
+        auto: '<rect x="2" y="2" width="12" height="12" fill="#101014"/><rect x="4" y="4" width="4" height="4" fill="#38bdf8"/><rect x="8" y="8" width="4" height="4" fill="#4ade80"/><rect x="8" y="4" width="4" height="4" fill="#f1b27c"/>',
+        native: '<rect x="7" y="2" width="2" height="12" fill="#4ade80"/><rect x="2" y="7" width="12" height="2" fill="#4ade80"/><rect x="5" y="5" width="6" height="6" fill="#f4f4f6"/>',
+        'mini-swe-agent': '<rect x="2" y="3" width="12" height="10" fill="#101014"/><rect x="2" y="3" width="12" height="2" fill="#38bdf8"/><rect x="4" y="7" width="2" height="2" fill="#f1b27c"/><rect x="6" y="9" width="2" height="2" fill="#f1b27c"/>',
+      };
+
+      const DEFAULT_HARNESSES = [
+        { id: 'auto', label: 'Auto', description: 'Coding → mini-SWE · Knowledge → Native' },
+        { id: 'native', label: 'Native', description: 'Antigravity tools, skills & MCP' },
+        { id: 'mini-swe-agent', label: 'mini-SWE', description: 'Bash/SWE loop for coding tasks' },
+      ];
+
+      const DEFAULT_THINKING_LEVELS = [
+        { id: 'auto', label: 'Auto', description: 'Server default' },
+        { id: 'off', label: 'Off', description: 'Disabled' },
+        { id: 'minimal', label: 'Minimal', description: 'Minimal' },
+        { id: 'low', label: 'Low', description: 'Low' },
+        { id: 'medium', label: 'Medium', description: 'Balanced' },
+        { id: 'high', label: 'High', description: 'High' },
+        { id: 'xhigh', label: 'Extra High', description: 'Maximum' },
+      ];
+
+      const SIMPLE_PRESET_IDS = new Set(['ollama', 'lmstudio', 'vllm', 'custom']);
+
+      const state = {
+        presets: [],
+        harnesses: DEFAULT_HARNESSES,
+        thinkingLevels: DEFAULT_THINKING_LEVELS,
+        agentSettings: { harness: 'auto', thinkingLevel: 'auto', verbose: true, uiMode: 'simple', maxThinkingLoops: 10 },
+        uiMode: localStorage.getItem('agy-local-agents-ui-mode') || 'simple',
+        simpleTab: 'models',
+        showSimpleKey: false,
+        activeEndpoint: { preset: 'ollama', baseUrl: 'http://localhost:11434/v1', hasApiKey: false },
+        savedEndpoints: [],
+        localDetected: new Map(),
+        providerCategory: 'all',
+        models: [],
+        discovered: { baseUrl: '', fetchedAt: null, models: [] },
+        directChat: { enabled: false, modelId: '', mode: 'intercept' },
+        proxyBaseUrl: '',
+        q: '',
+        filterMode: 'all',
+        offset: 0,
+        limit: 48,
+        bubbleOpen: false,
+        activeTab: 'quota',
+        selectedModelForModal: null,
+        modalTestHarness: '',
+        modalTestThinking: '',
+        lastTestResult: null,
+        activeStreamRunId: '',
+        activeStreamCursor: 0,
+        activeStreamText: '',
+        liveStreamHidden: false,
+      };
+
+      function setAmbientAccent(hex) {
+        document.documentElement.style.setProperty('--ambient-accent', hex);
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+      }
+
+      async function apiJson(url, opts) {
+        const res = await apiFetch(url, opts);
+        if (!res.ok) {
+          let errText = `HTTP ${res.status}`;
+          try {
+            const j = await res.json();
+            if (j && j.error) errText = j.error;
+          } catch {}
+          throw new Error(errText);
+        }
+        return res.json();
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function syncIndicator(group) {
+        if (!group) return;
+        const indicator = group.querySelector('.seg-indicator');
+        const active = group.querySelector('[aria-checked="true"]');
+        if (!indicator || !active || active.offsetWidth === 0) return;
+        group.style.setProperty('--x', `${active.offsetLeft}px`);
+        group.style.setProperty('--w', `${active.offsetWidth}px`);
+        if (!group.classList.contains('is-ready')) {
+          requestAnimationFrame(() => requestAnimationFrame(() => group.classList.add('is-ready')));
+        }
+      }
+
+      function syncAllIndicators() {
+        syncIndicator(uiModeToggle);
+        syncIndicator(simpleNav);
+        syncIndicator(providerCategoryPills);
+        syncIndicator(filterPills);
+        syncIndicator(bubbleTabs);
+      }
+
+      function setRadio(group, matchFn) {
+        for (const opt of group.querySelectorAll('.seg-option')) {
+          const on = matchFn(opt);
+          opt.setAttribute('aria-checked', String(on));
+          opt.tabIndex = on ? 0 : -1;
+        }
+        syncIndicator(group);
+      }
+
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(syncAllIndicators);
+        [uiModeToggle, simpleNav, providerCategoryPills, filterPills, bubbleTabs].forEach((el) => {
+          if (el) ro.observe(el);
+        });
+      }
+
+      function applyUiMode(mode, { persist = false, syncLocal = persist } = {}) {
+        const clean = mode === 'advanced' ? 'advanced' : 'simple';
+        state.uiMode = clean;
+        appEl.dataset.uiMode = clean;
+        if (syncLocal) {
+          localStorage.setItem('agy-local-agents-ui-mode', clean);
+        }
+        setRadio(uiModeToggle, (o) => o.dataset.uiMode === clean);
+        syncApiKeyVisibility();
+        renderProviderGrid();
+        requestAnimationFrame(syncAllIndicators);
+        if (persist) {
+          if (state.agentSettings) state.agentSettings.uiMode = clean;
+          apiJson('/api/agent-settings', {
+            method: 'POST',
+            body: JSON.stringify({ uiMode: clean }),
+          }).catch(() => {});
+        }
+      }
+
+      function applySimpleTab(tab) {
+        const clean = ['models', 'agent', 'add'].includes(tab) ? tab : 'models';
+        state.simpleTab = clean;
+        appEl.dataset.simpleTab = clean;
+        setRadio(simpleNav, (o) => o.dataset.simpleTab === clean);
+        requestAnimationFrame(syncAllIndicators);
+      }
+
+      function syncApiKeyVisibility() {
+        const presetMeta = state.presets.find((p) => p.id === state.activeEndpoint.preset);
+        const keyRequired = presetMeta?.keyOptional === false;
+        const show = state.uiMode === 'advanced' || state.showSimpleKey || keyRequired || state.activeEndpoint.hasApiKey;
+        apiKeyBlock.classList.toggle('hidden', !show);
+      }
+
+      function countModelsForProvider(presetId, url) {
+        return state.models.filter((m) => m.preset === presetId || (url && m.baseUrl === url)).length;
+      }
+
+      function renderProviderGrid() {
+        const activePreset = state.activeEndpoint.preset;
+        const activeUrl = state.activeEndpoint.baseUrl;
+
+        if (state.uiMode === 'advanced' && state.providerCategory === 'saved') {
+          if (!state.savedEndpoints.length) {
+            providerGrid.innerHTML = `<div class="empty"><p class="empty-title">No saved URLs</p></div>`;
+            return;
+          }
+          providerGrid.innerHTML = state.savedEndpoints
+            .map((ep) => {
+              const selected = activeUrl === ep.baseUrl;
+              const preset = state.presets.find((p) => p.id === ep.preset);
+              const iconSvg = PROVIDER_ICONS[ep.preset] || PROVIDER_ICONS.custom;
+              const addedCnt = countModelsForProvider(ep.preset, ep.baseUrl);
+              const badge = addedCnt > 0
+                ? `<span class="provider-badge is-online">${addedCnt}</span>`
+                : ep.hasApiKey
+                  ? '<span class="provider-badge is-saved">Key</span>'
+                  : '<span class="provider-badge">Saved</span>';
+              let shortHost = ep.baseUrl;
+              try { shortHost = new URL(ep.baseUrl).host; } catch {}
+              return `
+                <button type="button" class="provider-card pressable" role="radio" aria-checked="${selected}" data-saved-url="${escapeHtml(ep.baseUrl)}" data-preset="${escapeHtml(ep.preset)}" title="${escapeHtml(ep.baseUrl)}">
+                  <span class="provider-card-top">
+                    <span class="provider-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="none">${iconSvg}</svg></span>
+                    ${badge}
+                  </span>
+                  <span class="provider-title">${escapeHtml(preset?.label || ep.preset)}</span>
+                  <span class="provider-meta">${escapeHtml(shortHost)}</span>
+                </button>`;
+            })
+            .join('');
+          return;
+        }
+
+        const list = state.presets.filter((p) => {
+          if (state.uiMode === 'simple') {
+            return SIMPLE_PRESET_IDS.has(p.id) || state.localDetected.has(p.id) || p.id === activePreset;
+          }
+          if (state.providerCategory === 'all') return true;
+          return p.category === state.providerCategory;
+        });
+
+        providerGrid.innerHTML = list
+          .map((p) => {
+            const selected = p.id === activePreset;
+            const live = state.localDetected.get(p.id);
+            const savedMatch = state.savedEndpoints.find((ep) => ep.preset === p.id);
+            const addedCnt = countModelsForProvider(p.id, p.baseUrl);
+            const iconSvg = PROVIDER_ICONS[p.id] || PROVIDER_ICONS.custom;
+
+            let badge = '';
+            if (live) {
+              badge = `<span class="provider-badge is-online">On · ${live.modelCount}</span>`;
+            } else if (addedCnt > 0) {
+              badge = `<span class="provider-badge is-online">${addedCnt}</span>`;
+            } else if (savedMatch?.hasApiKey) {
+              badge = '<span class="provider-badge is-saved">Key</span>';
+            } else if (p.category === 'local') {
+              badge = '<span class="provider-badge">Local</span>';
+            } else if (!p.keyOptional) {
+              badge = '<span class="provider-badge">Key</span>';
+            }
+
+            return `
+              <button type="button" class="provider-card pressable" role="radio" aria-checked="${selected}" data-preset="${escapeHtml(p.id)}" title="${escapeHtml(p.hint)}">
+                <span class="provider-card-top">
+                  <span class="provider-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="none">${iconSvg}</svg></span>
+                  ${badge}
+                </span>
+                <span class="provider-title">${escapeHtml(p.label)}</span>
+                <span class="provider-meta">${escapeHtml(p.shortMeta || '')}</span>
+              </button>`;
+          })
+          .join('');
+      }
+
+      function renderSavedStrip() {
+        if (!state.savedEndpoints.length || state.providerCategory === 'saved') {
+          savedStrip.classList.add('hidden');
+          savedChips.innerHTML = '';
+          return;
+        }
+        savedStrip.classList.remove('hidden');
+        savedChips.innerHTML = state.savedEndpoints
+          .slice(0, 6)
+          .map((ep) => {
+            const isCurrent = state.activeEndpoint.baseUrl === ep.baseUrl;
+            let host = ep.baseUrl;
+            try { host = new URL(ep.baseUrl).host; } catch {}
+            return `<button type="button" class="mini-btn pressable ${isCurrent ? 'is-active' : ''}" data-saved-url="${escapeHtml(ep.baseUrl)}" data-preset="${escapeHtml(ep.preset)}" title="${escapeHtml(ep.baseUrl)}">${escapeHtml(ep.preset)}: ${escapeHtml(host)}</button>`;
+          })
+          .join('');
+      }
+
+      function getHarnessDescriptor(id) {
+        const list = state.harnesses?.length ? state.harnesses : DEFAULT_HARNESSES;
+        return list.find((h) => h.id === id) || list[0] || { id: id || 'auto', label: id || 'Auto', description: '' };
+      }
+
+      function getHarnessLabel(id) {
+        return getHarnessDescriptor(id || state.agentSettings?.harness || 'auto').label;
+      }
+
+      function getThinkingDescriptor(id) {
+        const list = state.thinkingLevels?.length ? state.thinkingLevels : DEFAULT_THINKING_LEVELS;
+        return list.find((t) => t.id === id) || list[0] || { id: id || 'auto', label: id || 'Auto', description: '' };
+      }
+
+      function getThinkingShortLabel(id) {
+        const resolved = id || state.agentSettings?.thinkingLevel || 'auto';
+        if (resolved === 'minimal') return 'Min';
+        if (resolved === 'medium') return 'Med';
+        if (resolved === 'xhigh') return 'XHigh';
+        return getThinkingDescriptor(resolved).label;
+      }
+
+      function resolveModelAgentConfig(model) {
+        const globalHarness = state.agentSettings?.harness || 'auto';
+        const globalThinking = state.agentSettings?.thinkingLevel || 'auto';
+        return {
+          harness: model?.harness || globalHarness,
+          thinkingLevel: model?.thinkingLevel || globalThinking,
+          harnessIsOverride: Boolean(model?.harness),
+          thinkingIsOverride: Boolean(model?.thinkingLevel),
+          globalHarness,
+          globalThinking,
+        };
+      }
+
+      function renderAgentSettings() {
+        const harnesses = state.harnesses?.length ? state.harnesses : DEFAULT_HARNESSES;
+        const levels = state.thinkingLevels?.length ? state.thinkingLevels : DEFAULT_THINKING_LEVELS;
+        const activeHarness = state.agentSettings?.harness || 'auto';
+        const activeThinking = state.agentSettings?.thinkingLevel || 'auto';
+        const verboseOn = state.agentSettings?.verbose === undefined ? true : Boolean(state.agentSettings.verbose);
+
+        const activeHarnessDesc = getHarnessDescriptor(activeHarness);
+        const activeThinkingDesc = getThinkingDescriptor(activeThinking);
+        const thinkingShort = getThinkingShortLabel(activeThinking);
+        const maxLoops = Math.min(50, Math.max(1, Number(state.agentSettings?.maxThinkingLoops) || 10));
+
+        agentSettingsBadge.textContent = `${activeHarnessDesc.label} · ${thinkingShort} · ${maxLoops}L`;
+        harnessActiveLabel.textContent = activeHarnessDesc.label;
+        thinkingHintLabel.textContent = activeThinkingDesc.description || activeThinkingDesc.label;
+
+        if (verboseThinkingToggle) {
+          verboseThinkingToggle.setAttribute('aria-checked', String(verboseOn));
+        }
+        if (verboseHintLabel) {
+          verboseHintLabel.textContent = verboseOn ? 'On' : 'Off';
+        }
+        if (maxLoopsInput && document.activeElement !== maxLoopsInput) {
+          maxLoopsInput.value = String(maxLoops);
+        }
+        if (maxLoopsHint) {
+          maxLoopsHint.textContent = `Direct · ${maxLoops} max`;
+        }
+        if (maxLoopsPills) {
+          for (const btn of maxLoopsPills.querySelectorAll('[data-loops]')) {
+            btn.setAttribute('aria-checked', String(Number(btn.dataset.loops) === maxLoops));
+          }
+        }
+
+        harnessGrid.innerHTML = harnesses
+          .map((h) => {
+            const selected = h.id === activeHarness;
+            const iconSvg = HARNESS_ICONS[h.id] || PROVIDER_ICONS.custom;
+            const badge = selected ? '<span class="provider-badge is-online">Active</span>' : '';
+            return `
+              <button type="button" class="provider-card harness-card pressable" role="radio" aria-checked="${selected}" data-harness="${escapeHtml(h.id)}" title="${escapeHtml(h.description || h.label)}">
+                <span class="provider-card-top">
+                  <span class="provider-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="none">${iconSvg}</svg></span>
+                  ${badge}
+                </span>
+                <span class="provider-title">${escapeHtml(h.label)}</span>
+                <span class="harness-desc">${escapeHtml(h.description || '')}</span>
+              </button>`;
+          })
+          .join('');
+
+        thinkingPills.innerHTML = levels
+          .map((t) => {
+            const selected = t.id === activeThinking;
+            const label = getThinkingShortLabel(t.id);
+            return `<button type="button" class="thinking-pill pressable" role="radio" aria-checked="${selected}" data-thinking="${escapeHtml(t.id)}" title="${escapeHtml(t.label)}">${escapeHtml(label)}</button>`;
+          })
+          .join('');
+      }
+
+      function applyState(payload) {
+        if (Array.isArray(payload.presets)) state.presets = payload.presets;
+        if (Array.isArray(payload.harnesses) && payload.harnesses.length) state.harnesses = payload.harnesses;
+        if (Array.isArray(payload.thinkingLevels) && payload.thinkingLevels.length) state.thinkingLevels = payload.thinkingLevels;
+        if (payload.agentSettings) {
+          state.agentSettings = payload.agentSettings;
+          if (payload.agentSettings.uiMode && payload.agentSettings.uiMode !== state.uiMode) {
+            applyUiMode(payload.agentSettings.uiMode, { persist: false, syncLocal: true });
+          }
+        }
+        if (payload.activeEndpoint) state.activeEndpoint = payload.activeEndpoint;
+        if (Array.isArray(payload.savedEndpoints)) state.savedEndpoints = payload.savedEndpoints;
+        if (Array.isArray(payload.models)) state.models = payload.models;
+        if (payload.discovered) state.discovered = payload.discovered;
+        if (payload.directChat) state.directChat = payload.directChat;
+        if (payload.proxyBaseUrl) state.proxyBaseUrl = payload.proxyBaseUrl;
+
+        const ep = state.activeEndpoint;
+        const presetMeta = state.presets.find((p) => p.id === ep.preset);
+        selectedProviderBadge.textContent = presetMeta ? presetMeta.label : ep.preset;
+        presetHint.textContent = presetMeta ? presetMeta.hint : 'OpenAI /v1 URL';
+        keyRequirementLabel.textContent = presetMeta?.keyOptional === false ? '(Required)' : '(Optional)';
+
+        if (document.activeElement !== baseUrlInput) {
+          baseUrlInput.value = ep.baseUrl || '';
+        }
+        keyStatusLabel.textContent = ep.hasApiKey ? 'Saved' : 'Not set';
+        apiKeyInput.placeholder = ep.hasApiKey ? 'Saved (blank to keep)' : 'Bearer token (sk-...)';
+        syncApiKeyVisibility();
+
+        const defModel = state.models.find((m) => m.isDefault) || state.models[0];
+        const enabledCount = state.models.filter((m) => m.enabled).length;
+        const dcActive = Boolean(state.directChat?.enabled);
+        const dcModel = dcActive && state.directChat?.modelId
+          ? state.models.find((m) => m.modelId === state.directChat.modelId || m.id === state.directChat.modelId)
+          : null;
+        const effCfg = resolveModelAgentConfig(dcModel || defModel);
+        const effSummary = `${getHarnessLabel(effCfg.harness)} · ${getThinkingShortLabel(effCfg.thinkingLevel)}`;
+        activeModelPill.textContent = defModel
+          ? `${defModel.displayName || defModel.modelId} · ${enabledCount}/${state.models.length} on · ${effSummary}${dcActive ? ' · Direct' : ''}`
+          : `No models · ${effSummary}`;
+        addedCountBadge.textContent = `${state.models.length}`;
+
+        if (state.discovered.baseUrl) {
+          endpointBadge.textContent = `${state.discovered.models.length} found`;
+        }
+
+        renderProviderGrid();
+        renderSavedStrip();
+        renderAgentSettings();
+        renderAddedList();
+        renderDiscoveredGrid();
+      }
+
+      function isModelAdded(modelId, baseUrl) {
+        return state.models.some((m) => m.modelId === modelId && m.baseUrl === baseUrl);
+      }
+
+      function renderAddedList() {
+        if (!state.models.length) {
+          addedList.innerHTML = `
+            <div class="empty">
+              <p class="empty-title">No models yet</p>
+              <p class="empty-desc">Fetch models to add.</p>
+            </div>`;
+          return;
+        }
+
+        const dcOn = Boolean(state.directChat?.enabled);
+        const dcTargetRef = state.directChat?.modelId || '';
+        const harnesses = state.harnesses?.length ? state.harnesses : DEFAULT_HARNESSES;
+        const levels = state.thinkingLevels?.length ? state.thinkingLevels : DEFAULT_THINKING_LEVELS;
+        const globalHarnessLabel = getHarnessLabel(state.agentSettings?.harness);
+        const globalThinkingLabel = getThinkingShortLabel(state.agentSettings?.thinkingLevel);
+
+        addedList.innerHTML = state.models
+          .map((m) => {
+            const label = m.displayName || m.modelId;
+            const isDcModel = dcOn && (dcTargetRef ? dcTargetRef === m.modelId || dcTargetRef === m.id : m.isDefault);
+            const eff = resolveModelAgentConfig(m);
+            const effHarnessLabel = getHarnessLabel(eff.harness);
+            const effThinkingLabel = getThinkingShortLabel(eff.thinkingLevel);
+            const hasOverride = eff.harnessIsOverride || eff.thinkingIsOverride;
+            let shortHost = m.baseUrl;
+            try { shortHost = new URL(m.baseUrl).host; } catch {}
+
+            const harnessOptions = [
+              `<option value="" ${!m.harness ? 'selected' : ''}>Global (${escapeHtml(globalHarnessLabel)})</option>`,
+              ...harnesses.map((h) => `<option value="${escapeHtml(h.id)}" ${m.harness === h.id ? 'selected' : ''}>${escapeHtml(h.label)}</option>`),
+            ].join('');
+            const thinkingOptions = [
+              `<option value="" ${!m.thinkingLevel ? 'selected' : ''}>Global (${escapeHtml(globalThinkingLabel)})</option>`,
+              ...levels.map((t) => `<option value="${escapeHtml(t.id)}" ${m.thinkingLevel === t.id ? 'selected' : ''}>${escapeHtml(getThinkingShortLabel(t.id))}</option>`),
+            ].join('');
+
+            return `
+              <div class="added-item ${m.isDefault ? 'is-default' : ''}" data-id="${escapeHtml(m.id)}">
+                <div class="added-top">
+                  <div class="added-info">
+                    <span class="added-name" title="${escapeHtml(m.modelId)}">${escapeHtml(label)}</span>
+                    <span class="added-meta" title="${escapeHtml(m.baseUrl)}">${escapeHtml(shortHost)}${m.hasApiKey ? ' · Key' : ''}</span>
+                  </div>
+                  <button type="button" class="switch pressable" role="switch" aria-checked="${m.enabled}" aria-label="Toggle ${escapeHtml(label)}" data-action="toggle">
+                    <span class="switch-thumb"></span>
+                  </button>
+                </div>
+                <div class="added-actions">
+                  ${m.isDefault ? '<span class="mini-badge">Default</span>' : '<button type="button" class="mini-btn pressable" data-action="default">Default</button>'}
+                  ${m.enabled && m.agentName ? `<span class="mini-badge adv-only" style="color:var(--cyan-400);">${escapeHtml(m.agentName)}</span>` : ''}
+                  <span class="mini-badge adv-only ${hasOverride ? 'is-override' : 'is-agent-cfg'}">${escapeHtml(effHarnessLabel)} · ${escapeHtml(effThinkingLabel)}</span>
+                  <button type="button" class="mini-btn pressable ${isDcModel ? 'is-active' : ''}" data-action="direct-chat">${isDcModel ? 'Direct: ON' : 'Direct'}</button>
+                  <button type="button" class="mini-btn pressable" data-action="test">Test</button>
+                  <button type="button" class="mini-btn pressable adv-only" data-action="sdk">SDK</button>
+                  <button type="button" class="mini-btn pressable adv-only" data-action="ask">Chat</button>
+                  <button type="button" class="mini-btn is-danger pressable" data-action="remove" style="margin-left:auto;">Remove</button>
+                </div>
+                <div class="added-overrides adv-only">
+                  <label class="override-field ${m.harness ? 'is-override' : ''}">
+                    <span class="override-lbl">Harness</span>
+                    <select class="mini-select" data-model-override="harness">${harnessOptions}</select>
+                  </label>
+                  <label class="override-field ${m.thinkingLevel ? 'is-override' : ''}">
+                    <span class="override-lbl">Thinking</span>
+                    <select class="mini-select" data-model-override="thinkingLevel">${thinkingOptions}</select>
+                  </label>
+                </div>
+              </div>`;
+          })
+          .join('');
+      }
+
+      function getFilteredDiscovered() {
+        const list = Array.isArray(state.discovered?.models) ? state.discovered.models : [];
+        const q = state.q.toLowerCase();
+        return list.filter((item) => {
+          const added = isModelAdded(item.id, item.baseUrl);
+          if (state.filterMode === 'added' && !added) return false;
+          if (state.filterMode === 'available' && added) return false;
+          if (q) {
+            const hay = `${item.id} ${item.displayName || ''} ${item.ownedBy || ''}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      function renderDiscoveredGrid() {
+        const filtered = getFilteredDiscovered();
+        addFilteredBtn.disabled = filtered.length === 0;
+        const totalDisc = state.discovered?.models?.length || 0;
+
+        if (!totalDisc) {
+          modelGrid.innerHTML = `<div class="empty"><p class="empty-title">Ready</p><p class="empty-desc">Click Fetch to browse models.</p></div>`;
+          pickerSummary.textContent = '0 models';
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+          return;
+        }
+
+        if (!filtered.length) {
+          modelGrid.innerHTML = `<div class="empty"><p class="empty-title">No matches</p><button type="button" class="btn btn-secondary pressable" data-action="clear-filter">Reset</button></div>`;
+          const clr = modelGrid.querySelector('[data-action="clear-filter"]');
+          if (clr) clr.addEventListener('click', () => {
+            searchInput.value = '';
+            state.q = '';
+            state.filterMode = 'all';
+            state.offset = 0;
+            updateSearchClear();
+            setRadio(filterPills, (o) => o.dataset.filter === 'all');
+            renderDiscoveredGrid();
+          });
+          pickerSummary.textContent = '0 matches';
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+          return;
+        }
+
+        if (state.offset >= filtered.length) state.offset = 0;
+        const pageItems = filtered.slice(state.offset, state.offset + state.limit);
+
+        modelGrid.innerHTML = pageItems
+          .map((item) => {
+            const added = isModelAdded(item.id, item.baseUrl);
+            const ctxLabel = item.contextWindow ? `${Math.round(item.contextWindow / 1024)}K` : '32K';
+            const sizeLabel = item.parameterSize || item.ownedBy || 'openai';
+            return `
+              <button type="button" class="model-tile pressable" data-model-id="${escapeHtml(item.id)}" aria-pressed="${added}" title="${escapeHtml(item.id)}">
+                <span class="tile-art" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="none">
+                    <rect x="3" y="3" width="10" height="10" fill="${added ? '#296861' : '#222229'}"/>
+                    <rect x="5" y="5" width="6" height="6" fill="${added ? '#4ade80' : '#f1b27c'}"/>
+                  </svg>
+                  <span class="tile-meta"><span>${escapeHtml(sizeLabel.slice(0, 9))}</span><span>${escapeHtml(ctxLabel)}</span></span>
+                </span>
+                <span class="tile-name">${escapeHtml(item.displayName || item.id)}</span>
+                <span class="tile-sub">${added ? 'Added' : '+ Add'}</span>
+                <span class="tile-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 6h2v2H2zm2 2h2v2H4zm2-2h2v2H6zm2-2h2v2H8zm1-2h2v2H9z" /></svg></span>
+              </button>`;
+          })
+          .join('');
+
+        const start = state.offset + 1;
+        const end = Math.min(state.offset + pageItems.length, filtered.length);
+        pickerSummary.textContent = `${start}–${end} of ${filtered.length}`;
+        prevBtn.disabled = state.offset <= 0;
+        nextBtn.disabled = state.offset + state.limit >= filtered.length;
+      }
+
+      /* Live Stream Polling */
+      async function refreshLiveStreams() {
+        try {
+          const data = await apiJson('/api/streams?limit=5');
+          const runs = Array.isArray(data.runs) ? data.runs : [];
+          const active = runs.find((r) => r.status === 'running') || runs[0];
+          if (!active) {
+            liveStrip.classList.add('hidden');
+            return;
+          }
+
+          const isRecent = active.status === 'running' || (Date.now() - (Date.parse(active.updatedAt || '') || 0)) < 180000;
+          if (!isRecent || state.liveStreamHidden) {
+            liveStrip.classList.add('hidden');
+            return;
+          }
+
+          liveStrip.classList.remove('hidden');
+          liveDot.className = `live-dot ${active.status === 'running' ? 'is-running' : active.status === 'error' ? 'is-error' : 'is-done'}`;
+          liveTitle.textContent = `${active.displayName || active.model || 'Local'} · ${active.status === 'running' ? 'Streaming' : active.status}`;
+          liveBadge.textContent = `${getHarnessLabel(active.harness)}${active.stepsUsed ? ` · S${active.stepsUsed}` : ''}`;
+
+          if (state.activeStreamRunId !== active.runId) {
+            state.activeStreamRunId = active.runId;
+            state.activeStreamCursor = 0;
+            state.activeStreamText = '';
+          }
+
+          const poll = await apiJson(`/api/streams/poll?runId=${encodeURIComponent(active.runId)}&cursor=${state.activeStreamCursor}`);
+          state.activeStreamCursor = poll.nextCursor ?? state.activeStreamCursor;
+          for (const ev of poll.events || []) {
+            if (ev.type === 'thinking_delta' || ev.type === 'content_delta') {
+              state.activeStreamText += ev.text || '';
+            } else if (ev.type === 'tool_start') {
+              state.activeStreamText += `\n-> ${ev.tool}\n`;
+            } else if (ev.type === 'tool_end') {
+              state.activeStreamText += `<- ${ev.tool} (${ev.ok ? 'ok' : 'err'})\n`;
+            }
+          }
+          const clipped = state.activeStreamText.trim().slice(-1500);
+          if (clipped) {
+            livePre.textContent = clipped;
+            livePre.classList.remove('hidden');
+            livePre.scrollTop = livePre.scrollHeight;
+          } else {
+            livePre.classList.add('hidden');
+          }
+        } catch {
+          // Ignore transient polling errors.
+        }
+      }
+
+      /* Actions */
+      async function selectProvider({ presetId, baseUrlOverride = null, autoDiscoverIfOnline = true } = {}) {
+        const preset = state.presets.find((p) => p.id === presetId);
+        const live = state.localDetected.get(presetId);
+        const saved = baseUrlOverride
+          ? state.savedEndpoints.find((ep) => ep.baseUrl === baseUrlOverride)
+          : state.savedEndpoints.find((ep) => ep.preset === presetId);
+
+        const nextUrl = baseUrlOverride || live?.baseUrl || saved?.baseUrl || (preset ? preset.baseUrl : '');
+        apiKeyInput.value = '';
+        state.activeEndpoint.preset = presetId;
+        state.activeEndpoint.baseUrl = nextUrl;
+        baseUrlInput.value = nextUrl;
+        syncApiKeyVisibility();
+
+        try {
+          const updated = await apiJson('/api/config', {
+            method: 'POST',
+            body: JSON.stringify({ preset: presetId, baseUrl: nextUrl }),
+          });
+          applyState(updated);
+        } catch {
+          renderProviderGrid();
+          renderSavedStrip();
+        }
+
+        if (autoDiscoverIfOnline && live && nextUrl) {
+          connectionStatus.textContent = 'Fetching…';
+          await searchAvailableModels();
+        } else if (!nextUrl) {
+          connectionStatus.textContent = 'Enter URL & click Fetch';
+          baseUrlInput.focus();
+        } else {
+          connectionStatus.textContent = `${preset?.label || presetId} selected`;
+        }
+      }
+
+      async function searchAvailableModels() {
+        const baseUrl = baseUrlInput.value.trim();
+        if (!baseUrl) {
+          showToast('Enter URL first');
+          baseUrlInput.focus();
+          return;
+        }
+        setAmbientAccent('#38bdf8');
+        searchModelsBtn.disabled = true;
+        searchModelsBtn.textContent = 'Fetching…';
+        modelGrid.classList.add('is-loading');
+        connectionStatus.textContent = 'Fetching /models…';
+
+        try {
+          const typedKey = apiKeyInput.value.trim();
+          const res = await apiJson('/api/discover', {
+            method: 'POST',
+            body: JSON.stringify({
+              preset: state.activeEndpoint.preset,
+              baseUrl,
+              ...(typedKey ? { apiKey: typedKey } : {}),
+            }),
+          });
+          applyState(res.state);
+          state.offset = 0;
+          renderDiscoveredGrid();
+          setAmbientAccent('#4ade80');
+          connectionStatus.textContent = `${res.total} found`;
+          showToast(`Found ${res.total} model${res.total === 1 ? '' : 's'}`);
+        } catch (err) {
+          setAmbientAccent('#f87171');
+          connectionStatus.textContent = err.message;
+          showToast(err.message);
+        } finally {
+          searchModelsBtn.disabled = false;
+          searchModelsBtn.textContent = 'Fetch';
+          modelGrid.classList.remove('is-loading');
+        }
+      }
+
+      async function scanLocalServers({ silent = false } = {}) {
+        scanChip.disabled = true;
+        inlineScanBtn.disabled = true;
+        scanSummary.textContent = 'Scanning…';
+
+        try {
+          const res = await apiJson('/api/scan-local', { method: 'POST', body: '{}' });
+          const found = res.endpoints || [];
+          state.localDetected.clear();
+          for (const ep of found) state.localDetected.set(ep.preset, ep);
+
+          if (!found.length) {
+            scanSummary.textContent = 'None online';
+            renderProviderGrid();
+            if (!silent) showToast('No local servers found');
+            return;
+          }
+
+          scanSummary.textContent = `${found.length} online`;
+          setAmbientAccent('#4ade80');
+          renderProviderGrid();
+
+          if (!silent) {
+            if (state.uiMode === 'simple') applySimpleTab('add');
+            await selectProvider({
+              presetId: found[0].preset,
+              baseUrlOverride: found[0].baseUrl,
+              autoDiscoverIfOnline: true,
+            });
+          }
+        } catch (err) {
+          scanSummary.textContent = 'Scan failed';
+          if (!silent) showToast(err.message);
+        } finally {
+          scanChip.disabled = false;
+          inlineScanBtn.disabled = false;
+        }
+      }
+
+      async function addModelsToAntigravity(items) {
+        const list = Array.isArray(items) ? items : [items];
+        if (!list.length) return;
+        const typedKey = apiKeyInput.value.trim();
+        try {
+          const res = await apiJson('/api/models/add', {
+            method: 'POST',
+            body: JSON.stringify({
+              models: list,
+              baseUrl: baseUrlInput.value.trim() || state.activeEndpoint.baseUrl,
+              preset: state.activeEndpoint.preset,
+              ...(typedKey ? { apiKey: typedKey } : {}),
+            }),
+          });
+          applyState(res.state);
+          setAmbientAccent('#4ade80');
+          const count = (res.added?.length || 0) + (res.updated?.length || 0);
+          showToast(count === 1 ? `Added ${list[0].displayName || list[0].id}` : `Added ${count} models`);
+        } catch (err) {
+          setAmbientAccent('#f87171');
+          showToast(err.message);
+        }
+      }
+
+      /* Modal */
+      function openModal(tab = 'quota', modelId = null) {
+        state.bubbleOpen = true;
+        state.activeTab = tab;
+        if (modelId) state.selectedModelForModal = modelId;
+        usageBtn.setAttribute('aria-expanded', 'true');
+        usageBtn.dataset.open = 'true';
+        usageBubble.setAttribute('aria-hidden', 'false');
+        usageBubble.classList.add('is-open');
+        setRadio(bubbleTabs, (o) => o.dataset.tab === tab);
+        renderModalTab();
+      }
+
+      function closeModal() {
+        if (!state.bubbleOpen) return;
+        state.bubbleOpen = false;
+        usageBtn.setAttribute('aria-expanded', 'false');
+        usageBtn.dataset.open = 'false';
+        usageBubble.classList.remove('is-open');
+        usageBubble.setAttribute('aria-hidden', 'true');
+      }
+
+      async function renderModalTab() {
+        if (state.activeTab === 'quota') await renderQuotaTab();
+        else if (state.activeTab === 'test') renderTestChatTab();
+        else await renderSdkTab();
+      }
+
+      async function renderQuotaTab() {
+        bubbleRefresh.classList.add('is-spinning');
+        bubbleSub.textContent = 'Checking…';
+        try {
+          const data = await apiJson('/api/usage');
+          const lsModels = Array.isArray(data.models) ? data.models : [];
+          const added = Array.isArray(data.addedModels) ? data.addedModels : state.models;
+          bubbleSub.textContent = `${added.length} local · ${lsModels.length} cloud`;
+
+          const addedHtml = added.length
+            ? `<ul class="usage-list">${added
+                .map((m) => {
+                  const eff = resolveModelAgentConfig(m);
+                  return `
+                    <li class="usage-row">
+                      <span class="usage-name">${escapeHtml(m.label || m.modelId)}</span>
+                      <span class="usage-meta">
+                        <span class="usage-status">${escapeHtml(getHarnessLabel(eff.harness))}</span>
+                        <span class="usage-status" data-tone="${m.enabled ? 'ok' : 'low'}">${m.enabled ? 'On' : 'Off'}</span>
+                      </span>
+                    </li>`;
+                })
+                .join('')}</ul>`
+            : '<p class="setting-desc">No local models yet.</p>';
+
+          const lsHtml = lsModels.length
+            ? `<ul class="usage-list">${lsModels
+                .map((m) => {
+                  const pct = typeof m.remainingFraction === 'number' ? Math.round(m.remainingFraction * 100) : null;
+                  const tone = pct === null ? 'ok' : pct <= 20 ? 'low' : pct <= 50 ? 'warn' : 'ok';
+                  return `
+                    <li class="usage-row">
+                      <span class="usage-name">${escapeHtml(m.label || m.modelId)}</span>
+                      <span class="usage-meta"><span class="usage-pct" data-tone="${tone}">${pct === null ? '—' : `${pct}%`}</span></span>
+                      <div class="meter"><div class="meter-fill" data-tone="${tone}" style="--value:${m.remainingFraction ?? 0}"></div></div>
+                    </li>`;
+                })
+                .join('')}</ul>`
+            : `<p class="setting-desc">${escapeHtml(data.lsWarning || 'Unavailable')}</p>`;
+
+          bubbleBody.innerHTML = `<div class="setting-label">Local</div>${addedHtml}<div class="setting-label" style="margin-top:6px;">Cloud Quota</div>${lsHtml}`;
+        } catch (err) {
+          bubbleSub.textContent = 'Error';
+          bubbleBody.innerHTML = `<p class="setting-desc">${escapeHtml(err.message)}</p>`;
+        } finally {
+          bubbleRefresh.classList.remove('is-spinning');
+        }
+      }
+
+      function getModalSelectedModel() {
+        if (state.selectedModelForModal) {
+          const found = state.models.find((m) => m.id === state.selectedModelForModal || m.modelId === state.selectedModelForModal);
+          if (found) return found;
+        }
+        return state.models.find((m) => m.isDefault) || state.models[0] || null;
+      }
+
+      function formatTestResultHtml(res) {
+        if (!res) return '';
+        const meta = [
+          res.model,
+          res.harness ? getHarnessLabel(res.harness) : '',
+          typeof res.latencyMs === 'number' ? `${res.latencyMs}ms` : '',
+        ].filter(Boolean);
+        const thinking = res.reasoning ? `Thinking:\n${res.reasoning}\n\n` : '';
+        return `<div class="code-pre" style="color:#4ade80;">[${escapeHtml(meta.join(' · '))}]\n\n${escapeHtml(thinking + (res.reply || ''))}</div>`;
+      }
+
+      function renderTestChatTab() {
+        const selected = getModalSelectedModel();
+        if (!state.models.length) {
+          bubbleSub.textContent = 'No model';
+          bubbleBody.innerHTML = '<p class="setting-desc">Add a model first.</p>';
+          return;
+        }
+        const harnesses = state.harnesses?.length ? state.harnesses : DEFAULT_HARNESSES;
+        const levels = state.thinkingLevels?.length ? state.thinkingLevels : DEFAULT_THINKING_LEVELS;
+        const eff = resolveModelAgentConfig(selected);
+        const effHarness = state.modalTestHarness || eff.harness;
+        const effThinking = state.modalTestThinking || eff.thinkingLevel;
+
+        bubbleSub.textContent = `${selected.modelId} · ${getHarnessLabel(effHarness)}`;
+
+        const options = state.models
+          .map((m) => `<option value="${escapeHtml(m.id)}" ${selected && m.id === selected.id ? 'selected' : ''}>${escapeHtml(m.displayName || m.modelId)}</option>`)
+          .join('');
+        const harnessOpts = [
+          `<option value="" ${!state.modalTestHarness ? 'selected' : ''}>Global (${escapeHtml(getHarnessLabel(eff.harness))})</option>`,
+          ...harnesses.map((h) => `<option value="${escapeHtml(h.id)}" ${state.modalTestHarness === h.id ? 'selected' : ''}>${escapeHtml(h.label)}</option>`),
+        ].join('');
+        const thinkingOpts = [
+          `<option value="" ${!state.modalTestThinking ? 'selected' : ''}>Global (${escapeHtml(getThinkingShortLabel(eff.thinkingLevel))})</option>`,
+          ...levels.map((t) => `<option value="${escapeHtml(t.id)}" ${state.modalTestThinking === t.id ? 'selected' : ''}>${escapeHtml(getThinkingShortLabel(t.id))}</option>`),
+        ].join('');
+
+        bubbleBody.innerHTML = `
+          <div class="setting">
+            <label class="setting-label" for="modal-model-select">Model</label>
+            <select class="pixel-select" id="modal-model-select">${options}</select>
+          </div>
+          <div class="modal-row-2">
+            <div class="setting" style="padding-top:0; border-top:0;">
+              <label class="setting-label" for="modal-harness-select">Harness</label>
+              <select class="pixel-select" id="modal-harness-select">${harnessOpts}</select>
+            </div>
+            <div class="setting" style="padding-top:0; border-top:0;">
+              <label class="setting-label" for="modal-thinking-select">Thinking</label>
+              <select class="pixel-select" id="modal-thinking-select">${thinkingOpts}</select>
+            </div>
+          </div>
+          <div class="setting">
+            <label class="setting-label" for="modal-test-prompt">Prompt</label>
+            <textarea class="pixel-textarea" id="modal-test-prompt">Reply with OK and your model name.</textarea>
+          </div>
+          <div class="input-row">
+            <button type="button" class="btn btn-primary pressable" id="modal-run-test-btn" style="flex:1;">Run Test</button>
+          </div>
+          <div id="modal-test-output">${formatTestResultHtml(state.lastTestResult)}</div>`;
+
+        $('modal-model-select').addEventListener('change', (e) => {
+          state.selectedModelForModal = e.target.value;
+          renderTestChatTab();
+        });
+        $('modal-harness-select').addEventListener('change', (e) => {
+          state.modalTestHarness = e.target.value;
+        });
+        $('modal-thinking-select').addEventListener('change', (e) => {
+          state.modalTestThinking = e.target.value;
+        });
+        $('modal-run-test-btn').addEventListener('click', async () => {
+          const btn = $('modal-run-test-btn');
+          const outEl = $('modal-test-output');
+          btn.disabled = true;
+          btn.textContent = 'Running…';
+          outEl.innerHTML = '<p class="setting-desc">Sending…</p>';
+          try {
+            const payload = { id: $('modal-model-select').value, prompt: $('modal-test-prompt').value.trim() };
+            if ($('modal-harness-select').value) payload.harness = $('modal-harness-select').value;
+            if ($('modal-thinking-select').value) payload.thinkingLevel = $('modal-thinking-select').value;
+            const res = await apiJson('/api/models/test', { method: 'POST', body: JSON.stringify(payload) });
+            state.lastTestResult = res;
+            outEl.innerHTML = formatTestResultHtml(res);
+          } catch (err) {
+            outEl.innerHTML = `<div class="code-pre" style="color:#f87171;">${escapeHtml(err.message)}</div>`;
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Run Test';
+          }
+        });
+      }
+
+      async function renderSdkTab() {
+        const selected = getModalSelectedModel();
+        bubbleSub.textContent = selected ? selected.modelId : 'Python SDK';
+        try {
+          const query = selected ? `?id=${encodeURIComponent(selected.id)}` : '';
+          const sdk = await apiJson('/api/sdk' + query);
+          bubbleBody.innerHTML = `
+            <div class="setting-head">
+              <span class="setting-label">LocalOpenAIAgentConfig</span>
+              <button type="button" class="mini-btn pressable" data-copy="basic">Copy</button>
+            </div>
+            <pre class="code-pre">${escapeHtml(sdk.basic)}</pre>
+            <div class="setting-head">
+              <span class="setting-label">Hybrid Orchestrator</span>
+              <button type="button" class="mini-btn pressable" data-copy="hybrid">Copy</button>
+            </div>
+            <pre class="code-pre">${escapeHtml(sdk.hybrid)}</pre>`;
+
+          bubbleBody.querySelectorAll('[data-copy]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+              const text = btn.dataset.copy === 'basic' ? sdk.basic : sdk.hybrid;
+              try {
+                await navigator.clipboard.writeText(text);
+                showToast('Copied');
+              } catch {
+                showToast('Copy failed');
+              }
+            });
+          });
+        } catch (err) {
+          bubbleBody.innerHTML = `<p class="setting-desc">${escapeHtml(err.message)}</p>`;
+        }
+      }
+
+      /* Event Wiring */
+      uiModeToggle.addEventListener('click', (e) => {
+        const opt = e.target.closest('[data-ui-mode]');
+        if (!opt) return;
+        applyUiMode(opt.dataset.uiMode, { persist: true });
+      });
+
+      simpleNav.addEventListener('click', (e) => {
+        const tab = e.target.closest('[data-simple-tab]');
+        if (!tab) return;
+        applySimpleTab(tab.dataset.simpleTab);
+      });
+
+      simpleKeyToggle.addEventListener('click', () => {
+        state.showSimpleKey = !state.showSimpleKey;
+        syncApiKeyVisibility();
+        if (state.showSimpleKey) apiKeyInput.focus();
+      });
+
+      liveToggleBtn.addEventListener('click', () => {
+        state.liveStreamHidden = true;
+        liveStrip.classList.add('hidden');
+      });
+
+      providerCategoryPills.addEventListener('click', (e) => {
+        const opt = e.target.closest('[role="radio"]');
+        if (!opt) return;
+        state.providerCategory = opt.dataset.category || 'all';
+        setRadio(providerCategoryPills, (o) => o.dataset.category === state.providerCategory);
+        renderProviderGrid();
+        renderSavedStrip();
+      });
+
+      providerGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.provider-card');
+        if (!card) return;
+        selectProvider({ presetId: card.dataset.preset, baseUrlOverride: card.dataset.savedUrl || null, autoDiscoverIfOnline: true });
+      });
+
+      savedChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-saved-url]');
+        if (!chip) return;
+        selectProvider({ presetId: chip.dataset.preset || 'custom', baseUrlOverride: chip.dataset.savedUrl, autoDiscoverIfOnline: true });
+      });
+
+      toggleKeyBtn.addEventListener('click', () => {
+        const showing = apiKeyInput.type === 'text';
+        apiKeyInput.type = showing ? 'password' : 'text';
+        toggleKeyBtn.textContent = showing ? 'Show' : 'Hide';
+      });
+
+      searchModelsBtn.addEventListener('click', searchAvailableModels);
+      baseUrlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') searchAvailableModels(); });
+      inlineScanBtn.addEventListener('click', () => scanLocalServers({ silent: false }));
+      scanChip.addEventListener('click', () => scanLocalServers({ silent: false }));
+      testChip.addEventListener('click', () => openModal('test'));
+      if (monitorChip) {
+        monitorChip.addEventListener('click', () => {
+          const next = new URL('/monitor.html', window.location.origin);
+          const cur = new URLSearchParams(window.location.search);
+          if (cur.get('token')) next.searchParams.set('token', cur.get('token'));
+          if (cur.get('conversationId')) next.searchParams.set('conversationId', cur.get('conversationId'));
+          window.location.href = next.toString();
+        });
+      }
+      sdkChip.addEventListener('click', () => openModal('sdk'));
+      usageBtn.addEventListener('click', () => (state.bubbleOpen ? closeModal() : openModal('quota')));
+      bubbleClose.addEventListener('click', closeModal);
+      bubbleRefresh.addEventListener('click', renderModalTab);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.bubbleOpen) closeModal(); });
+
+      bubbleTabs.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('[role="tab"]');
+        if (!tabBtn) return;
+        state.activeTab = tabBtn.dataset.tab;
+        setRadio(bubbleTabs, (o) => o.dataset.tab === state.activeTab);
+        renderModalTab();
+      });
+
+      manualToggleBtn.addEventListener('click', () => {
+        const hidden = manualDrawer.classList.toggle('hidden');
+        if (!hidden) manualIdInput.focus();
+      });
+
+      manualAddBtn.addEventListener('click', async () => {
+        const id = manualIdInput.value.trim();
+        if (!id) { showToast('Enter model ID'); return; }
+        await addModelsToAntigravity([{
+          id,
+          displayName: manualNameInput.value.trim() || id,
+          baseUrl: baseUrlInput.value.trim() || state.activeEndpoint.baseUrl,
+          preset: state.activeEndpoint.preset,
+        }]);
+        manualIdInput.value = '';
+        manualNameInput.value = '';
+        manualDrawer.classList.add('hidden');
+      });
+
+      modelGrid.addEventListener('click', async (e) => {
+        const card = e.target.closest('.model-tile');
+        if (!card) return;
+        const item = (state.discovered.models || []).find((m) => m.id === card.dataset.modelId);
+        if (!item) return;
+        const existing = state.models.find((m) => m.modelId === item.id && m.baseUrl === item.baseUrl);
+        if (existing) {
+          try {
+            const res = await apiJson('/api/models/remove', { method: 'POST', body: JSON.stringify({ id: existing.id }) });
+            applyState(res.state);
+            showToast(`Removed ${existing.displayName || existing.modelId}`);
+          } catch (err) { showToast(err.message); }
+        } else {
+          await addModelsToAntigravity([item]);
+        }
+      });
+
+      addFilteredBtn.addEventListener('click', async () => {
+        const filtered = getFilteredDiscovered().filter((item) => !isModelAdded(item.id, item.baseUrl));
+        if (!filtered.length) { showToast('Already added'); return; }
+        await addModelsToAntigravity(filtered);
+      });
+
+      addedList.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-action]');
+        const row = e.target.closest('.added-item');
+        if (!btn || !row) return;
+        const id = row.dataset.id;
+        const action = btn.dataset.action;
+        const model = state.models.find((m) => m.id === id);
+        if (!model) return;
+
+        if (action === 'test') { openModal('test', id); return; }
+        if (action === 'sdk') { openModal('sdk', id); return; }
+        if (action === 'direct-chat') {
+          const active = Boolean(state.directChat?.enabled) && (state.directChat?.modelId ? state.directChat.modelId === model.modelId || state.directChat.modelId === model.id : model.isDefault);
+          try {
+            const res = await apiJson('/api/direct-chat', {
+              method: 'POST',
+              body: JSON.stringify({ enabled: !active, modelId: model.modelId, mode: 'intercept' }),
+            });
+            applyState(res.state);
+            showToast(!active ? `Direct ON: ${model.displayName || model.modelId}` : 'Direct OFF');
+          } catch (err) { showToast(err.message); }
+          return;
+        }
+        if (action === 'ask') {
+          if (window.sidecar?.agent?.sendMessage) {
+            try {
+              await window.sidecar.agent.sendMessage(`Use agy_local_chat with model "${model.modelId}" to say hello.`);
+              showToast('Sent to chat');
+            } catch (err) { showToast(err.message); }
+          } else {
+            showToast(`Use @${model.modelId} in chat`);
+          }
+          return;
+        }
+        if (action === 'toggle') {
+          try {
+            const res = await apiJson('/api/models/update', { method: 'POST', body: JSON.stringify({ id, enabled: !model.enabled }) });
+            applyState(res.state);
+          } catch (err) { showToast(err.message); }
+          return;
+        }
+        if (action === 'default') {
+          try {
+            const res = await apiJson('/api/models/update', { method: 'POST', body: JSON.stringify({ id, isDefault: true }) });
+            applyState(res.state);
+            showToast(`Default: ${model.displayName || model.modelId}`);
+          } catch (err) { showToast(err.message); }
+          return;
+        }
+        if (action === 'remove') {
+          try {
+            const res = await apiJson('/api/models/remove', { method: 'POST', body: JSON.stringify({ id }) });
+            applyState(res.state);
+            showToast(`Removed ${model.displayName || model.modelId}`);
+          } catch (err) { showToast(err.message); }
+        }
+      });
+
+      addedList.addEventListener('change', async (e) => {
+        const select = e.target.closest('select[data-model-override]');
+        const row = e.target.closest('.added-item');
+        if (!select || !row) return;
+        const id = row.dataset.id;
+        try {
+          const res = await apiJson('/api/models/update', { method: 'POST', body: JSON.stringify({ id, [select.dataset.modelOverride]: select.value }) });
+          applyState(res.state);
+          showToast('Updated');
+        } catch (err) {
+          showToast(err.message);
+          renderAddedList();
+        }
+      });
+
+      async function updateAgentSettings(patch) {
+        try {
+          const res = await apiJson('/api/agent-settings', { method: 'POST', body: JSON.stringify(patch) });
+          applyState(res.state);
+          setAmbientAccent('#4ade80');
+          showToast(`Saved: ${getHarnessLabel(res.agentSettings?.harness)} · ${getThinkingShortLabel(res.agentSettings?.thinkingLevel)}`);
+        } catch (err) {
+          setAmbientAccent('#f87171');
+          showToast(err.message);
+        }
+      }
+
+      harnessGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-harness]');
+        if (!card) return;
+        if (card.dataset.harness && card.dataset.harness !== state.agentSettings?.harness) {
+          updateAgentSettings({ harness: card.dataset.harness });
+        }
+      });
+
+      thinkingPills.addEventListener('click', (e) => {
+        const pill = e.target.closest('[data-thinking]');
+        if (!pill) return;
+        if (pill.dataset.thinking && pill.dataset.thinking !== state.agentSettings?.thinkingLevel) {
+          updateAgentSettings({ thinkingLevel: pill.dataset.thinking });
+        }
+      });
+
+      if (verboseThinkingToggle) {
+        verboseThinkingToggle.addEventListener('click', () => {
+          const cur = state.agentSettings?.verbose === undefined ? true : Boolean(state.agentSettings.verbose);
+          updateAgentSettings({ verbose: !cur });
+        });
+      }
+
+      function commitMaxThinkingLoops(rawVal) {
+        const clamped = Math.min(50, Math.max(1, Math.round(Number(rawVal) || 10)));
+        if (maxLoopsInput) maxLoopsInput.value = String(clamped);
+        if (clamped !== (Number(state.agentSettings?.maxThinkingLoops) || 10)) {
+          updateAgentSettings({ maxThinkingLoops: clamped });
+        }
+      }
+
+      if (maxLoopsDec) {
+        maxLoopsDec.addEventListener('click', () => {
+          const cur = Number(state.agentSettings?.maxThinkingLoops) || 10;
+          commitMaxThinkingLoops(cur - 1);
+        });
+      }
+      if (maxLoopsInc) {
+        maxLoopsInc.addEventListener('click', () => {
+          const cur = Number(state.agentSettings?.maxThinkingLoops) || 10;
+          commitMaxThinkingLoops(cur + 1);
+        });
+      }
+      if (maxLoopsInput) {
+        maxLoopsInput.addEventListener('change', () => commitMaxThinkingLoops(maxLoopsInput.value));
+        maxLoopsInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            commitMaxThinkingLoops(maxLoopsInput.value);
+            maxLoopsInput.blur();
+          }
+        });
+      }
+      if (maxLoopsPills) {
+        maxLoopsPills.addEventListener('click', (e) => {
+          const pill = e.target.closest('[data-loops]');
+          if (!pill) return;
+          commitMaxThinkingLoops(pill.dataset.loops);
+        });
+      }
+
+      function updateSearchClear() { searchClear.classList.toggle('visible', searchInput.value.length > 0); }
+      searchInput.addEventListener('input', () => {
+        updateSearchClear();
+        state.q = searchInput.value.trim();
+        state.offset = 0;
+        renderDiscoveredGrid();
+      });
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        updateSearchClear();
+        state.q = '';
+        state.offset = 0;
+        renderDiscoveredGrid();
+      });
+
+      filterPills.addEventListener('click', (e) => {
+        const opt = e.target.closest('[role="radio"]');
+        if (!opt) return;
+        state.filterMode = opt.dataset.filter || 'all';
+        state.offset = 0;
+        setRadio(filterPills, (o) => o.dataset.filter === state.filterMode);
+        renderDiscoveredGrid();
+      });
+
+      prevBtn.addEventListener('click', () => { state.offset = Math.max(0, state.offset - state.limit); renderDiscoveredGrid(); });
+      nextBtn.addEventListener('click', () => {
+        const filtered = getFilteredDiscovered();
+        if (state.offset + state.limit < filtered.length) { state.offset += state.limit; renderDiscoveredGrid(); }
+      });
+
+      function enforceBodyThemeStyles() {
+        document.documentElement.style.setProperty('background', '#000000', 'important');
+        if (!document.body) return;
+        document.body.style.setProperty('margin', '0', 'important');
+        document.body.style.setProperty('padding', '0', 'important');
+        document.body.style.setProperty('font-family', 'var(--font-pixel)', 'important');
+        document.body.style.setProperty('background', '#000000', 'important');
+        document.body.style.setProperty('color', 'var(--color-text-primary)', 'important');
+      }
+
+      async function init() {
+        enforceBodyThemeStyles();
+        applyUiMode(state.uiMode, { persist: false });
+        applySimpleTab(state.simpleTab);
+        renderAgentSettings();
+        try {
+          const cfg = await apiJson('/api/config');
+          applyState(cfg);
+        } catch (err) {
+          showToast(err.message);
+        }
+        syncAllIndicators();
+        scanLocalServers({ silent: true });
+        // Sidecar live stream strip is intentionally hidden; thinking streams directly in chat.
+        liveStrip.classList.add('hidden');
+      }
+      init();
+    })();
+  </script>
+</body>
+</html>
